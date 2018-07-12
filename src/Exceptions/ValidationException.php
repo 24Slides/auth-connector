@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Services\Auth\Exceptions;
+namespace Slides\Connector\Auth\Exceptions;
 
 /**
  * Class ValidationException
  *
- * @package App\Services\Auth\Exceptions
+ * @package Slides\Connector\Auth\Exceptions
  */
 class ValidationException extends \Illuminate\Validation\ValidationException
 {

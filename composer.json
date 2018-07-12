@@ -1,0 +1,57 @@
+{
+    "name": "24slides/auth-connector",
+    "type": "library",
+    "description": "",
+    "keywords": [],
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/24slides/auth-connector/issues",
+        "source": "https://github.com/24slides/auth-connector"
+    },
+    "authors": [
+        {
+            "name": "Artem Brezhnev",
+            "email": "brezzhnev@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=7.0",
+        "firebase/php-jwt": "^5.0",
+        "guzzlehttp/guzzle": "^6.3",
+        "illuminate/support": "~5.5"
+    },
+    "require-dev": {
+        "mockery/mockery": "^0.9.9",
+        "orchestra/testbench": "~3.0",
+        "phpunit/phpunit": "~6.0",
+        "squizlabs/php_codesniffer": "^2.3"
+    },
+    "autoload": {
+        "psr-4": {
+            "Slides\\Connector\\Auth\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Slides\\Connector\\Auth\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        },
+        "laravel": {
+            "providers": [
+                "Slides\\Connector\\Auth\\ServiceProvider"
+            ],
+            "aliases": {
+                "AuthService": "Slides\\Connector\\Auth\\Facades\\AuthService"
+            }
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
