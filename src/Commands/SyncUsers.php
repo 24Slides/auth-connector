@@ -4,9 +4,9 @@ namespace Slides\Connector\Auth\Commands;
 
 use Slides\Connector\Auth\AuthService;
 use Slides\Connector\Auth\Sync\Syncable;
-use Illuminate\Contracts\Auth\UserProvider;
 use Slides\Connector\Auth\Client as AuthClient;
 use Slides\Connector\Auth\Sync\User as SyncUser;
+use Illuminate\Support\Facades\Auth;
 
 /**
  * Class SyncUsers
@@ -30,11 +30,6 @@ class SyncUsers extends \Illuminate\Console\Command
     protected $description = 'Synchronize users with the remote authentication service';
 
     /**
-     * @var UserProvider|\Illuminate\Auth\EloquentUserProvider
-     */
-    protected $userProvider;
-
-    /**
      * @var AuthClient
      */
     protected $authClient;
@@ -47,12 +42,10 @@ class SyncUsers extends \Illuminate\Console\Command
     /**
      * SyncUsers constructor.
      *
-     * @param UserProvider $userProvider
      * @param AuthService $authService
      */
-    public function __construct(UserProvider $userProvider, AuthService $authService)
+    public function __construct(AuthService $authService)
     {
-        $this->userProvider = $userProvider;
         $this->authService = $authService;
 
         parent::__construct();
@@ -67,7 +60,7 @@ class SyncUsers extends \Illuminate\Console\Command
     {
         $this->authClient = new AuthClient();
 
-        $users = $this->userProvider->createModel()
+        $users = Auth::getProvider()->createModel()
             ->newQuery()
             ->get();
 
@@ -170,7 +163,7 @@ class SyncUsers extends \Illuminate\Console\Command
         $email = $user->getEmail();
 
         // If a user already exists, skip the process
-        if($model = $this->userProvider->retrieveByCredentials(['email' => $email])) {
+        if($model = Auth::getProvider()->retrieveByCredentials(['email' => $email])) {
             $this->warn("User with email {$email} already exists, unable to create");
 
             return;
@@ -189,7 +182,7 @@ class SyncUsers extends \Illuminate\Console\Command
         $email = $user->getEmail();
 
         // If a user doesn't exist, skip the process
-        if(!$model = $this->userProvider->retrieveByCredentials(['email' => $email])) {
+        if(!$model = Auth::getProvider()->retrieveByCredentials(['email' => $email])) {
             $this->warn("User with email {$email} doesn't exist, unable to update");
 
             return;
@@ -208,7 +201,7 @@ class SyncUsers extends \Illuminate\Console\Command
         $email = $user->getEmail();
 
         // If a user doesn't exist, skip the process
-        if(!$model = $this->userProvider->retrieveByCredentials(['email' => $email])) {
+        if(!$model = Auth::getProvider()->retrieveByCredentials(['email' => $email])) {
             $this->warn("User with email {$email} doesn't exist, unable to delete");
 
             return;

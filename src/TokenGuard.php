@@ -5,6 +5,7 @@ namespace Slides\Connector\Auth;
 use Illuminate\Auth\GuardHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
+use Illuminate\Contracts\Auth\UserProvider;
 
 /**
  * Class TokenGuard
@@ -42,10 +43,12 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
     /**
      * TokenGuard constructor.
      *
+     * @param UserProvider $provider
      * @param Request $request
      */
-    public function __construct(Request $request)
+    public function __construct(UserProvider $provider, Request $request)
     {
+        $this->provider = $provider;
         $this->request = $request;
 
         $this->client = new Client();

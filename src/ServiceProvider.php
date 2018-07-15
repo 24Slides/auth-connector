@@ -39,7 +39,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/connector.php.php', 'connector'
+            __DIR__ . '/../config/connector.php', 'connector'
         );
 
         $this->registerFacades();
@@ -98,7 +98,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected function registerGuard()
     {
         Auth::extend('authServiceToken', function(\Illuminate\Foundation\Application $app) {
-            return $app->make(TokenGuard::class, [$app['request']]);
+            return $app->make(TokenGuard::class, [
+                'provider' => $app['auth']->createUserProvider($app['config']['auth.guards.web.provider']),
+                'request' => $app['request']
+            ]);
         });
     }
 }
