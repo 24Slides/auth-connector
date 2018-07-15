@@ -60,7 +60,7 @@ class AuthService
         }
 
         return $this->ensure(function() use ($handler, $parameters) {
-            return call_user_func_array($handler, $parameters);
+            return call_user_func_array($handler, ['parameters' => $parameters]);
         }, $fallback);
     }
 
