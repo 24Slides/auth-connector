@@ -131,8 +131,8 @@ class SyncUsers extends \Illuminate\Console\Command
                     $stats['updated']++;
                 }
                 case 'delete': {
-                    // $this->deleteUser($user);
-                    // $stats['deleted']++;
+                    $this->deleteUser($user);
+                    $stats['deleted']++;
                 }
             }
         }
@@ -157,6 +157,8 @@ class SyncUsers extends \Illuminate\Console\Command
      * Create a local user
      *
      * @param SyncUser $user
+     *
+     * @throws
      */
     private function createUser(SyncUser $user)
     {
@@ -169,13 +171,15 @@ class SyncUsers extends \Illuminate\Console\Command
             return;
         }
 
-        $this->authService->runHandler(AuthService::HANDLER_USER_SYNC_CREATE, ['user' => $user]);
+        $this->authService->handle(AuthService::HANDLER_USER_SYNC_CREATE, ['user' => $user]);
     }
 
     /**
      * Update a local user
      *
      * @param SyncUser $user
+     *
+     * @throws
      */
     private function updateUser(SyncUser $user)
     {
@@ -188,13 +192,15 @@ class SyncUsers extends \Illuminate\Console\Command
             return;
         }
 
-        $this->authService->runHandler(AuthService::HANDLER_USER_SYNC_UPDATE, ['user' => $user]);
+        $this->authService->handle(AuthService::HANDLER_USER_SYNC_UPDATE, ['user' => $user, 'local' => $model]);
     }
 
     /**
      * Delete a local user
      *
      * @param SyncUser $user
+     *
+     * @throws
      */
     private function deleteUser(SyncUser $user)
     {
@@ -207,6 +213,6 @@ class SyncUsers extends \Illuminate\Console\Command
             return;
         }
 
-        $this->authService->runHandler(AuthService::HANDLER_USER_SYNC_DELETE, ['user' => $user]);
+        $this->authService->handle(AuthService::HANDLER_USER_SYNC_DELETE, ['user' => $user, 'local' => $model]);
     }
 }

@@ -11,33 +11,30 @@ use Illuminate\Support\Facades\DB;
  */
 class AuthService
 {
-    const HANDLER_USER_CREATE      = 'user.create';
-    const HANDLER_USER_UPDATE      = 'user.update';
-    const HANDLER_USER_DELETE      = 'user.delete';
-    const HANDLER_USER_SYNC_CREATE = 'sync.user.create';
-    const HANDLER_USER_SYNC_UPDATE = 'sync.user.update';
-    const HANDLER_USER_SYNC_DELETE = 'sync.user.delete';
+    const HANDLER_USER_CREATE      = 'create';
+    const HANDLER_USER_UPDATE      = 'update';
+    const HANDLER_USER_DELETE      = 'delete';
+    const HANDLER_USER_SYNC_CREATE = 'sync.create';
+    const HANDLER_USER_SYNC_UPDATE = 'sync.update';
+    const HANDLER_USER_SYNC_DELETE = 'sync.delete';
 
     /**
-     * Application handlers
+     * The class with handler methods
      *
-     * @var array
+     * @var object
      */
-    protected $handlers = [];
+    protected $handlersContainer;
 
     /**
-     * Create a handler
+     * Load handlers from the given container.
      *
-     * @param string $key
-     * @param \Closure $callback
+     * @param $container
      *
-     * @return $this
+     * @return void
      */
-    public function makeHandler(string $key, \Closure $callback)
+    public function loadHandlers($container)
     {
-        $this->handlers[$key] = $callback;
-
-        return $this;
+        $this->handlersContainer = $container;
     }
 
     /**
@@ -49,51 +46,19 @@ class AuthService
      *
      * @return mixed
      *
-     * @throws
+     * @throws \Exception
      */
-    public function runHandler(string $key, array $parameters, \Closure $fallback = null)
+    public function handle(string $key, array $parameters, \Closure $fallback = null)
     {
-        $handler = $this->getHandler($key);
+        $handler = camel_case(str_replace('.', ' ', $key));
 
-        if(!$handler || !$handler instanceof \Closure) {
-            throw new \InvalidArgumentException("Handler `{$key}` cannot be found");
+        if(!method_exists($this->handlersContainer, $handler)) {
+            throw new \InvalidArgumentException("Handler `{$handler}` cannot be found");
         }
 
         return $this->ensure(function() use ($handler, $parameters) {
-            return call_user_func_array($handler, ['parameters' => $parameters]);
+            return call_user_func_array([$this->handlersContainer, $handler], $parameters);
         }, $fallback);
-    }
-
-    /**
-     * Set application handlers
-     *
-     * @param array $handlers
-     */
-    public function setHandlers(array $handlers)
-    {
-        $this->handlers = $handlers;
-    }
-
-    /**
-     * Get application handlers
-     *
-     * @return array
-     */
-    public function getHandlers()
-    {
-        return $this->handlers;
-    }
-
-    /**
-     * Get a handler
-     *
-     * @param string $handler
-     *
-     * @return \Closure|null
-     */
-    public function getHandler(string $handler)
-    {
-        return array_get($this->handlers, $handler);
     }
 
     /**

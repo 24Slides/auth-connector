@@ -57,15 +57,15 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
     /**
      * Authenticate a user.
      *
-     * @param string $username
+     * @param string $email
      * @param string $password
      * @param bool $remember
      *
      * @return string|false
      */
-    public function login(string $username, string $password, bool $remember = false)
+    public function login(string $email, string $password, bool $remember = false)
     {
-        $this->client->request('login', compact('username', 'password', 'remember'));
+        $this->client->request('login', compact('email', 'password', 'remember'));
 
         if(!$this->client->success()) {
             return false;
@@ -84,14 +84,15 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
      * Create a remote user.
      *
      * @param int $userId
-     * @param string $username
+     * @param string $name
+     * @param string $email
      * @param string $password
      *
      * @return array
      */
-    public function register(int $userId, string $username, string $password)
+    public function register(int $userId, string $name, string $email, string $password)
     {
-        return $this->client->request('register', compact('userId', 'username', 'password'));
+        return $this->client->request('register', compact('userId', 'name', 'email', 'password'));
     }
 
     /**

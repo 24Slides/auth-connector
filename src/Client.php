@@ -84,16 +84,16 @@ class Client
     /**
      * Login a user
      *
-     * @param string $username
+     * @param string $email
      * @param string $password
      * @param bool $remember
      *
      * @return ResponseInterface
      */
-    protected function login(string $username, string $password, bool $remember = false): ResponseInterface
+    protected function login(string $email, string $password, bool $remember = false): ResponseInterface
     {
         return $this->client->post('login', ['json' => [
-            'username' => $username,
+            'email' => $email,
             'password' => $password,
             'remember' => $remember
         ]]);
@@ -103,16 +103,18 @@ class Client
      * Register a user
      *
      * @param int $userId Local user ID
-     * @param string $username
+     * @param string $name
+     * @param string $email
      * @param string $password
      *
      * @return ResponseInterface
      */
-    protected function register(int $userId, string $username, string $password): ResponseInterface
+    protected function register(int $userId, string $name, string $email, string $password): ResponseInterface
     {
         return $this->client->post('register', ['json' => [
             'userId' => $userId,
-            'username' => $username,
+            'name' => $name,
+            'email' => $email,
             'password' => $password
         ]]);
     }
