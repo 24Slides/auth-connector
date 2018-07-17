@@ -51,7 +51,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
         $this->provider = $provider;
         $this->request = $request;
 
-        $this->client = new Client();
+        $this->client = new Client($this);
     }
 
     /**
@@ -150,6 +150,29 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
     }
 
     /**
+     * Update a remote user
+     *
+     * @param int $id Local user ID
+     * @param string|null $name
+     * @param string|null $email
+     * @param string|null $password Raw password, in case if changed
+     *
+     * @return array|false
+     */
+    public function update(int $id, ?string $name, ?string $email, ?string $password)
+    {
+        $attributes = array_filter(compact('id', 'name', 'email', 'password'));
+
+        $response = $this->client->request('update', compact('id', 'attributes'));
+
+        if(!$this->client->success(true)) {
+            return false;
+        }
+
+        return $response;
+    }
+
+    /**
      * Get the currently authenticated user.
      *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null
@@ -175,7 +198,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
     /**
      * Get the token for the current request.
      *
-     * @return string
+     * @return string|null
      */
     public function token()
     {
@@ -189,7 +212,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
             $token = $this->request->bearerToken();
         }
 
-        return $token;
+        return $this->token = $token;
     }
 
     /**

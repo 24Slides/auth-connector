@@ -64,11 +64,38 @@ final class User
     protected $remoteAction;
 
     /**
+     * User constructor.
+     *
+     * @param string|null $name
+     * @param string $email
+     * @param string|null $password
+     * @param string|null $updated
+     * @param string $created
+     * @param string $action
+     */
+    public function __construct(
+        ?string $name,
+        string $email,
+        ?string $password,
+        ?string $updated,
+        string $created,
+        string $action
+    )
+    {
+        $this->name = $name;
+        $this->email = $email;
+        $this->password = $password;
+        $this->updated = new Carbon($updated);
+        $this->created = new Carbon($created);
+        $this->remoteAction = $action;
+    }
+
+    /**
      * Get user's name
      *
-     * @return string
+     * @return string|null
      */
-    public function getName(): string
+    public function getName()
     {
         return $this->name;
     }
@@ -86,9 +113,9 @@ final class User
     /**
      * Get user's password
      *
-     * @return string
+     * @return string|null
      */
-    public function getPassword(): string
+    public function getPassword()
     {
         return $this->password;
     }
@@ -106,10 +133,20 @@ final class User
     /**
      * Get updated_at date
      *
-     * @return Carbon
+     * @return Carbon|null
      */
-    public function getUpdated(): Carbon
+    public function getUpdated()
     {
         return $this->updated;
+    }
+
+    /**
+     * Get remote action
+     *
+     * @return string
+     */
+    public function getRemoteAction(): string
+    {
+        return $this->remoteAction;
     }
 }

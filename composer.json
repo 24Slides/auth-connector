@@ -15,7 +15,7 @@
         }
     ],
     "require": {
-        "php": ">=7.0",
+        "php": ">=7.1",
         "firebase/php-jwt": "^5.0",
         "guzzlehttp/guzzle": "^6.3",
         "illuminate/support": "~5.5"

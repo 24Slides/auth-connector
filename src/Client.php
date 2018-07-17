@@ -5,6 +5,7 @@ namespace Slides\Connector\Auth;
 use GuzzleHttp\Client as HttpClient;
 use Psr\Http\Message\ResponseInterface;
 use Slides\Connector\Auth\Exceptions\ValidationException;
+use Slides\Connector\Auth\TokenGuard as Guard;
 
 /**
  * Class Client
@@ -13,6 +14,13 @@ use Slides\Connector\Auth\Exceptions\ValidationException;
  */
 class Client
 {
+    /**
+     * Authentication guard
+     *
+     * @var TokenGuard
+     */
+    protected $guard;
+
     /**
      * The HTTP client
      *
@@ -40,17 +48,19 @@ class Client
      * @var array
      */
     protected $requests = [
-        'login', 'register', 'refresh', 'me',
-        'forgot', 'validateReset', 'reset', 'sync'
+        'login', 'register', 'refresh', 'me', 'update',
+        'forgot', 'validateReset', 'reset', 'sync',
     ];
 
     /**
      * Client constructor.
      *
+     * @param TokenGuard $guard
      * @param HttpClient|null $client
      */
-    public function __construct(HttpClient $client = null)
+    public function __construct(Guard $guard, HttpClient $client = null)
     {
+        $this->guard = $guard;
         $this->client = $client;
 
         $this->boot();
@@ -74,7 +84,8 @@ class Client
                 'base_uri' => str_finish(env('SERVICE_AUTH_URL'), '/'),
                 'headers' => [
                     'X-Tenant-Key' => $publicKey,
-                    'X-Tenant-Sign' => $this->signature($publicKey, $secretKey)
+                    'X-Tenant-Sign' => $this->signature($publicKey, $secretKey),
+                    'Authorization' => $this->bearerToken()
                 ],
                 'http_errors' => false
             ]);
@@ -178,6 +189,21 @@ class Client
         return $this->client->post('sync', ['json' => [
             'users' => $users
         ]]);
+    }
+
+    /**
+     * Update a remote user
+     *
+     * @param int $id Local user ID
+     * @param array $attributes
+     *
+     * @return ResponseInterface
+     */
+    protected function update(int $id, array $attributes): ResponseInterface
+    {
+        return $this->client->post('update', ['json' => array_merge(
+            ['userId' => $id], $attributes
+        )]);
     }
 
     /**
@@ -305,5 +331,19 @@ class Client
                 throw new \Slides\Connector\Auth\Exceptions\HttpException($message);
             }
         }
+    }
+
+    /**
+     * Retrieve authorization Bearer token.
+     *
+     * @return string|null
+     */
+    private function bearerToken()
+    {
+        if(!$token = $this->guard->token()) {
+            return null;
+        }
+
+        return 'Bearer ' . $token;
     }
 }

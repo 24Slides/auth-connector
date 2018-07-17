@@ -58,7 +58,7 @@ class SyncUsers extends \Illuminate\Console\Command
      */
     public function handle()
     {
-        $this->authClient = new AuthClient();
+        $this->authClient = new AuthClient(Auth::guard());
 
         $users = Auth::getProvider()->createModel()
             ->newQuery()
@@ -99,6 +99,7 @@ class SyncUsers extends \Illuminate\Console\Command
             ->map(function(Syncable $user) {
                 return [
                     'id' => $user->retrieveId(),
+                    'name' => $user->retrieveName(),
                     'email' => $user->retrieveEmail(),
                     'password' => $user->retrievePassword(),
                     'created_at' => $user->retrieveCreatedAt()->toDateTimeString(),
@@ -119,8 +120,8 @@ class SyncUsers extends \Illuminate\Console\Command
     {
         $stats = ['created' => 0, 'updated' => 0, 'deleted' => 0];
 
-        foreach ($users as $user) {
-            switch ($user['action']) {
+        foreach ($this->loadUsers($users) as $user) {
+            switch ($user->getRemoteAction()) {
                 case 'create': {
                     $this->createUser($user);
                     $stats['created']++;
@@ -129,6 +130,7 @@ class SyncUsers extends \Illuminate\Console\Command
                 case 'update': {
                     $this->updateUser($user);
                     $stats['updated']++;
+                    break;
                 }
                 case 'delete': {
                     $this->deleteUser($user);
@@ -171,7 +173,7 @@ class SyncUsers extends \Illuminate\Console\Command
             return;
         }
 
-        $this->authService->handle(AuthService::HANDLER_USER_SYNC_CREATE, ['user' => $user]);
+        $this->authService->handle(AuthService::HANDLER_USER_SYNC_CREATE, ['remote' => $user]);
     }
 
     /**
@@ -192,7 +194,7 @@ class SyncUsers extends \Illuminate\Console\Command
             return;
         }
 
-        $this->authService->handle(AuthService::HANDLER_USER_SYNC_UPDATE, ['user' => $user, 'local' => $model]);
+        $this->authService->handle(AuthService::HANDLER_USER_SYNC_UPDATE, ['remote' => $user, 'local' => $model]);
     }
 
     /**
@@ -213,6 +215,27 @@ class SyncUsers extends \Illuminate\Console\Command
             return;
         }
 
-        $this->authService->handle(AuthService::HANDLER_USER_SYNC_DELETE, ['user' => $user, 'local' => $model]);
+        $this->authService->handle(AuthService::HANDLER_USER_SYNC_DELETE, ['remote' => $user, 'local' => $model]);
+    }
+
+    /**
+     * Parse user into entities
+     *
+     * @param array $users
+     *
+     * @return SyncUser[]|array
+     */
+    protected function loadUsers(array $users): array
+    {
+        return array_map(function(array $user) {
+            return new SyncUser(
+                array_get($user, 'name'),
+                array_get($user, 'email'),
+                array_get($user, 'password'),
+                array_get($user, 'updated_at'),
+                array_get($user, 'created_at'),
+                array_get($user, 'action')
+            );
+        }, $users);
     }
 }
