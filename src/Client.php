@@ -5,7 +5,6 @@ namespace Slides\Connector\Auth;
 use GuzzleHttp\Client as HttpClient;
 use Psr\Http\Message\ResponseInterface;
 use Slides\Connector\Auth\Exceptions\ValidationException;
-use Slides\Connector\Auth\TokenGuard as Guard;
 
 /**
  * Class Client
@@ -14,13 +13,6 @@ use Slides\Connector\Auth\TokenGuard as Guard;
  */
 class Client
 {
-    /**
-     * Authentication guard
-     *
-     * @var TokenGuard
-     */
-    protected $guard;
-
     /**
      * The HTTP client
      *
@@ -55,12 +47,10 @@ class Client
     /**
      * Client constructor.
      *
-     * @param TokenGuard $guard
      * @param HttpClient|null $client
      */
-    public function __construct(Guard $guard, HttpClient $client = null)
+    public function __construct(HttpClient $client = null)
     {
-        $this->guard = $guard;
         $this->client = $client;
 
         $this->boot();
@@ -80,12 +70,16 @@ class Client
         }
 
         if(!$this->client) {
+            $handler = new \GuzzleHttp\HandlerStack();
+            $handler->setHandler(new \GuzzleHttp\Handler\CurlHandler());
+            $handler->push($this->bearerTokenHeader());
+
             $this->client = new HttpClient([
+                'handler' => $handler,
                 'base_uri' => str_finish($this->credential('url'), '/'),
                 'headers' => [
                     'X-Tenant-Key' => $publicKey,
-                    'X-Tenant-Sign' => $this->signature($publicKey, $secretKey),
-                    'Authorization' => $this->bearerToken()
+                    'X-Tenant-Sign' => $this->signature($publicKey, $secretKey)
                 ],
                 'http_errors' => false
             ]);
@@ -340,11 +334,27 @@ class Client
      */
     private function bearerToken()
     {
-        if(!$token = $this->guard->token()) {
+        if(!$token = app('auth')->token()) {
             return null;
         }
 
         return 'Bearer ' . $token;
+    }
+
+    /**
+     * A Guzzle middleware of injecting the Bearer authentication token
+     *
+     * @return \Closure
+     */
+    public function bearerTokenHeader(): \Closure
+    {
+        return function(callable $handler) {
+            return function (\Psr\Http\Message\RequestInterface $request, array $options) use ($handler) {
+                $request = $request->withHeader('Authorization', $this->bearerToken());
+
+                return $handler($request, $options);
+            };
+        };
     }
 
     /**

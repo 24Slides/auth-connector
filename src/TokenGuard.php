@@ -62,7 +62,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
         $this->request = $request;
         $this->authService = $authService;
 
-        $this->client = new Client($this);
+        $this->client = new Client();
     }
 
     /**
@@ -91,98 +91,6 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
         $this->storeToken($this->token);
 
         return $this->token;
-    }
-
-    /**
-     * Create a remote user.
-     *
-     * @param int $userId
-     * @param string $name
-     * @param string $email
-     * @param string $password
-     *
-     * @return array
-     */
-    public function register(int $userId, string $name, string $email, string $password)
-    {
-        return $this->client->request('register', compact('userId', 'name', 'email', 'password'));
-    }
-
-    /**
-     * Send an email with a password resetting link
-     *
-     * @param string $email
-     *
-     * @return bool
-     */
-    public function forgot(string $email)
-    {
-        $this->client->request('forgot', compact('email'));
-
-        return $this->client->success(true);
-    }
-
-    /**
-     * Checks whether password reset token is valid
-     *
-     * @param string $email
-     * @param string $token
-     *
-     * @return string|false
-     */
-    public function validatePasswordResetToken(string $email, string $token)
-    {
-        $response = $this->client->request('validateReset', compact('token', 'email'));
-
-        if(!$this->client->success(true)) {
-            return false;
-        }
-
-        return array_get($response, 'user.email');
-    }
-
-    /**
-     * Checks whether password reset token is valid
-     *
-     * @param string $token
-     * @param string $email
-     * @param string $password
-     * @param string $confirmation
-     *
-     * @return array|false
-     */
-    public function resetPassword(string $token, string $email, string $password, string $confirmation)
-    {
-        $response = $this->client->request('reset', compact('token', 'email', 'password', 'confirmation'));
-
-        if(!$this->client->success(true)) {
-            return false;
-        }
-
-        return $response;
-    }
-
-    /**
-     * Update a remote user
-     *
-     * @param int $id Local user ID
-     * @param string|null $name
-     * @param string|null $email
-     * @param string|null $password Raw password, in case if changed
-     *
-     * @return array|false
-     */
-    public function update(int $id, ?string $name, ?string $email, ?string $password)
-    {
-        $attributes = array_filter(compact('id', 'name', 'email', 'password'));
-
-        $response = $this->client->request('update', compact('id', 'attributes'));
-
-        if(!$this->client->success(true)) {
-            return false;
-        }
-
-        return $response;
     }
 
     /**

@@ -29,6 +29,6 @@ return [
      */
 
     'auth' => [
-        'enabled' => true
+        'enabled' => env('SERVICE_AUTH_ENABLED', true)
     ]
 ];

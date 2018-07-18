@@ -106,7 +106,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected function registerFacades()
     {
         $this->app->singleton(AuthService::class, function($app) {
-            return new AuthService();
+            return new AuthService(new Client());
         });
 
         $this->app->bind('authService', function($app) {
