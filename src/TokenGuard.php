@@ -2,8 +2,8 @@
 
 namespace Slides\Connector\Auth;
 
-use Illuminate\Auth\GuardHelpers;
 use Illuminate\Http\Request;
+use Illuminate\Auth\GuardHelpers;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Contracts\Auth\UserProvider;
 
@@ -27,6 +27,11 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
     protected $client;
 
     /**
+     * @var AuthService
+     */
+    protected $authService;
+
+    /**
      * The name of cookie parameter where bearer token stores.
      *
      * @var string
@@ -45,11 +50,17 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
      *
      * @param UserProvider $provider
      * @param Request $request
+     * @param AuthService $authService
      */
-    public function __construct(UserProvider $provider, Request $request)
+    public function __construct(
+        UserProvider $provider,
+        Request $request,
+        AuthService $authService
+    )
     {
         $this->provider = $provider;
         $this->request = $request;
+        $this->authService = $authService;
 
         $this->client = new Client($this);
     }
@@ -61,7 +72,9 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
      * @param string $password
      * @param bool $remember
      *
-     * @return string|false
+     * @return mixed
+     *
+     * @throws
      */
     public function login(string $email, string $password, bool $remember = false)
     {

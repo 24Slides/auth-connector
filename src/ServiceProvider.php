@@ -28,7 +28,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->loadPublishes();
         $this->loadMigrations();
         $this->loadConsoleCommands();
-        $this->loadViews();
+        $this->loadGuards();
     }
 
     /**
@@ -43,11 +43,13 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         );
 
         $this->registerFacades();
-        $this->registerGuard();
+        $this->registerGuards();
     }
 
     /**
-     * Load publishes
+     * Load configs
+     *
+     * @return void
      */
     protected function loadPublishes()
     {
@@ -56,6 +58,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
     /**
      * Load migrations
+     *
+     * @return void
      */
     protected function loadMigrations()
     {
@@ -64,6 +68,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
     /**
      * Load console commands
+     *
+     * @return void
      */
     protected function loadConsoleCommands()
     {
@@ -77,11 +83,21 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     }
 
     /**
-     * Load views
+     * Load default and fallback authentication guards.
+     *
+     * @return void
      */
-    protected function loadViews()
+    protected function loadGuards()
     {
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'plugin');
+        $this->app['authService']->setGuard(
+            $this->app['auth']->guard('authService')
+        );
+
+        if(!$this->enabled()) {
+            $this->app['authService']->setFallbackGuard(
+                $this->app['auth']->guard('fallback')
+            );
+        }
     }
 
     /**
@@ -100,14 +116,32 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
     /**
      * Register the guard
+     *
+     * @return void
      */
-    protected function registerGuard()
+    protected function registerGuards()
     {
-        Auth::extend('authServiceToken', function(\Illuminate\Foundation\Application $app) {
+        $this->app['auth']->extend('authServiceToken', function(\Illuminate\Foundation\Application $app) {
             return $app->make(TokenGuard::class, [
-                'provider' => $app['auth']->createUserProvider($app['config']['auth.guards.web.provider']),
-                'request' => $app['request']
+                'provider' => $app['auth']->createUserProvider($app['config']['auth.guards.authService.provider']),
+                'request' => $app['request'],
+                'authService' => $app['authService']
             ]);
         });
+
+        // Register the fallback driver if service is disabled
+        if(!$this->enabled()) {
+            $this->app['auth']->shouldUse('fallback');
+        }
+    }
+
+    /**
+     * Checks whether service is enabled
+     *
+     * @return bool
+     */
+    private function enabled(): bool
+    {
+        return config('connector.auth.enabled') === true;
     }
 }

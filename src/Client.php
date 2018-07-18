@@ -71,17 +71,17 @@ class Client
      */
     protected function boot()
     {
-        if(!$publicKey = env('SERVICE_AUTH_PUBLIC')) {
-            throw new \InvalidArgumentException('SERVICE_AUTH_PUBLIC must be defined');
+        if(!$publicKey = $this->credential('public')) {
+            throw new \InvalidArgumentException('Public key must be defined');
         }
 
-        if(!$secretKey = env('SERVICE_AUTH_SECRET')) {
-            throw new \InvalidArgumentException('SERVICE_AUTH_SECRET must be defined');
+        if(!$secretKey = $this->credential('secret')) {
+            throw new \InvalidArgumentException('Secret key must be defined');
         }
 
         if(!$this->client) {
             $this->client = new HttpClient([
-                'base_uri' => str_finish(env('SERVICE_AUTH_URL'), '/'),
+                'base_uri' => str_finish($this->credential('url'), '/'),
                 'headers' => [
                     'X-Tenant-Key' => $publicKey,
                     'X-Tenant-Sign' => $this->signature($publicKey, $secretKey),
@@ -345,5 +345,18 @@ class Client
         }
 
         return 'Bearer ' . $token;
+    }
+
+    /**
+     * Retrieve a credential value
+     *
+     * @param string $key
+     * @param mixed $default
+     *
+     * @return string|null
+     */
+    private function credential(string $key, $default = null)
+    {
+        return array_get(config('connector.credentials.auth', []), $key, $default);
     }
 }
