@@ -78,6 +78,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         }
 
         $this->commands([
+            \Slides\Connector\Auth\Commands\MakeAuthHandlers::class,
             \Slides\Connector\Auth\Commands\SyncUsers::class
         ]);
     }

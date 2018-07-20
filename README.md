@@ -42,9 +42,44 @@ SERVICE_AUTH_PUBLIC=
 SERVICE_AUTH_SECRET=
 ```
 
-### Development
+### Syncing users
 
+To allow syncing users, implement the `Slides\Connector\Auth\Sync\Syncable` interface on your `User` model.
 
+### Authentication handlers
+
+Handlers implement authentication operation and wrapped into database transactions. It's just a layer to keep logic in one place.
+
+To generate a handler, you should use the following command:
+
+```bash
+php artisan make:auth-handlers
+```
+
+It'll create you a file `AuthHandlers.php` under the namespace `App\Services\Auth`.
+
+Once file has created, you should add to the `boot` in the `app/Services/AuthServiceProvider.php`:
+
+```php
+$this->app['authService']->loadHandlers($this->app[\App\Services\Auth\AuthHandlers::class]);
+```
+
+You can find examples of handler implementations [here](examples).
+
+#### Fallbacks
+
+Connector provides the possibility to disable the remote service. 
+It means authentication operations like login, logout, password reset should be processed locally.
+
+To reach that, you need to implement the following fallback handlers on your handler class:
+
+```php
+fallbackLogin($guard, string $email, string $password, bool $remember = false): bool
+fallbackLogout($guard): void
+fallbackForgot($guard, string $email): bool
+fallbackValidateReset($guard, string $email): string|false
+fallbackResetPassword($guard, string $token, string $email, string $password, string $confirmation): array|false
+```
 
 ### Testing
 
