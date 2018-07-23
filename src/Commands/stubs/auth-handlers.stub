@@ -1,0 +1,228 @@
+<?php
+
+namespace App\Services\Auth;
+
+use Illuminate\Http\Request;
+use Slides\Connector\Auth\AuthService;
+use App\User as User;
+use App\User as LocalUser;
+use Slides\Connector\Auth\Sync\User as SyncUser;
+
+/**
+ * Class AuthHandlers
+ *
+ * @package App\Services\Auth
+ */
+class AuthHandlers
+{
+    /**
+     * The remote authentication service.
+     *
+     * @var AuthService
+     */
+    protected $authService;
+
+    /**
+     * AuthHandlers constructor.
+     *
+     * @param AuthService $authService
+     */
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
+    /**
+     * Create a user locally and remotely
+     *
+     * @param array $attributes
+     *
+     * @return User
+     */
+    public function create(array $attributes)
+    {
+        // Here you should define your own logic of user creation process, or refer to a corresponding service
+        // As a result, the function should retrieve an updated user model instance
+        $user = User::create($attributes);
+
+        $this->authService->register($user->id, $user->name, $user->email, $attributes['password']);
+
+        return $user;
+    }
+
+    /**
+     * Update a user locally and remotely
+     *
+     * @param User $user
+     * @param Request $request
+     *
+     * @return User
+     */
+    public function update(User $user, Request $request)
+    {
+        $attributes = $request->only('name', 'email'); // use your ones if names are not the same
+
+        // Here you should define the logic which updates a local user using the attributes given from the request
+        // As a result, the function should retrieve an updated model instance
+        $success = User::update($attributes);
+
+        if($success) {
+            $this->authService->update($user->id, $user->name, $user->email, null);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Update a user's password locally and remotely
+     *
+     * @param User $user
+     * @param string $password
+     *
+     * @return User
+     */
+    public function updatePassword(User $user, string $password)
+    {
+        // Here you should define the logic which hashes an updates user's password
+        $success = User::update(['password' => \Illuminate\Support\Facades\Hash::make($password)]);
+
+        if($success) {
+            $this->authService->update($user->id, null, null, $password);
+        }
+
+        return $user;
+    }
+
+    /**
+     * Create a user locally
+     *
+     * @param SyncUser $remote
+     *
+     * @return void
+     */
+    public function syncCreate(SyncUser $remote)
+    {
+        // Here you should define the logic which creates a local user using the data available at SyncUser instance.
+        //
+        // Be careful regarding the password property, it's already hashed password so you don't need to hash it.
+    }
+
+    /**
+     * Update a local user
+     *
+     * @param SyncUser $remote
+     * @param LocalUser $local
+     *
+     * @return void
+     */
+    public function syncUpdate(SyncUser $remote, LocalUser $local)
+    {
+        // Here you should define the logic which updates a local user, available at $local argument and use
+        // the data available at SyncUser instance.
+        //
+        // Be careful regarding the password property, it's already hashed password so you don't need to hash it.
+    }
+
+    /**
+     * Delete a local user
+     *
+     * @param SyncUser $remote
+     * @param LocalUser $local
+     *
+     * @return void
+     */
+    public function syncDelete(SyncUser $remote, LocalUser $local)
+    {
+        // Here you should define the logic which *safely* deletes a local user, available at $local argument.
+    }
+
+    /**
+     * Login a user when remote service is disabled
+     *
+     * @param \Illuminate\Contracts\Auth\Guard $guard
+     * @param string $email
+     * @param string $password
+     * @param bool $remember
+     *
+     * @return bool
+     */
+    public function fallbackLogin($guard, string $email, string $password, bool $remember = false)
+    {
+        // Here you should define the logic which attempts a user to login using the email and password attributes.
+        //
+        // The parameter $guard represents your fallback driver's guard defined at `config/auth.php`.
+    }
+
+    /**
+     * Logout a user when remote service is disabled
+     *
+     * @param \Illuminate\Contracts\Auth\Guard $guard
+     *
+     * @return void
+     */
+    public function fallbackLogout($guard)
+    {
+        // Here you should define the logic which logout a user.
+        // Most likely your guard already has the `logout()` method there.
+        //
+        // The parameter $guard represents your fallback driver's guard defined at `config/auth.php`.
+    }
+
+    /**
+     * Send a link with password resetting token.
+     *
+     * Should retrieve a boolean whether an email has been sent.
+     *
+     * @param \Illuminate\Contracts\Auth\Guard $guard
+     * @param string $email
+     *
+     * @return bool
+     */
+    public function fallbackForgot($guard, string $email)
+    {
+        // Here you should define the logic which sends an email to a user with the password resetting token.
+        //
+        // The parameter $guard represents your fallback driver's guard defined at `config/auth.php`.
+    }
+
+    /**
+     * Send a link with password resetting token.
+     *
+     * On success should retrieve a user's email
+     *
+     * @param \Illuminate\Contracts\Auth\Guard $guard
+     * @param string $email
+     * @param string $token
+     *
+     * @return string|false
+     */
+    public function fallbackValidateReset($guard, string $token, string $email)
+    {
+        // Here you should define the logic which checks passed user's password resetting token and validates it
+        // along with passed user's email.
+        //
+        // The parameter $guard represents your fallback driver's guard defined at `config/auth.php`.
+    }
+
+    /**
+     * Send a link with password resetting token.
+     *
+     * On success should retrieve an array with the structure ('user' => ('email' => $email...))
+     *
+     * @param \Illuminate\Contracts\Auth\Guard $guard
+     * @param string $email
+     * @param string $token
+     *
+     * @return array|false
+     */
+    public function fallbackResetPassword($guard, string $token, string $email, string $password, string $confirmation)
+    {
+        // Here you should define the logic which finally resets user's password.
+        // First of all, you should verify the token along with email again, in case if it goes successfully
+        // you should make hash of the password and update in the database.
+        //
+        // The parameter $guard represents your fallback driver's guard defined at `config/auth.php`.
+
+        return ['user' => ['email' => $user->email]];
+    }
+}
