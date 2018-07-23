@@ -156,3 +156,9 @@ public function sendPasswordResetNotification(string $token)
 }
 ```
 
+- Override the reset form route by adding to `routes/web.php`: 
+
+```php
+Route::get('password/reset/{token}/{email}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+```
+
