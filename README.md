@@ -33,14 +33,46 @@ tick `repo` and click "Generate".
 
 ### Installation
 
-- Install a dependency via Composer: `composer require 24slides/auth-connector`
-- Define the following environment variables, obtain **public** and **secret** keys before:
+- Define the following environment variables, obtain them from the server admin:
 
 ```
 SERVICE_AUTH_URL=https://auth.24slides.com/v1
 SERVICE_AUTH_PUBLIC=
 SERVICE_AUTH_SECRET=
+
+JWT_SECRET=
 ```
+- Install a dependency via Composer: `composer require 24slides/auth-connector`
+- Define auth guards at `config/auth.php`:
+
+```php
+'guards' => [
+    ...
+    
+    'authService' => [
+        'driver' => 'authServiceToken',
+        'provider' => 'users',
+    ],
+    
+    'fallback' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+],
+```
+
+> Fallback is your default authentication guard which activates when remote service is disabled
+
+- Replace default guard to `authService`:
+
+```php
+'defaults' => [
+    'guard' => 'authService',
+    'passwords' => 'users',
+],
+```
+
+> If you want to enable IDE features like hints, you need to install [barryvdh/laravel-ide-helper](https://github.com/barryvdh/laravel-ide-helper).
 
 ### Syncing users
 
@@ -64,22 +96,63 @@ Once file has created, you should add to the `boot` in the `app/Services/AuthSer
 $this->app['authService']->loadHandlers($this->app[\App\Services\Auth\AuthHandlers::class]);
 ```
 
-You can find examples of handler implementations [here](examples).
+You can find examples of handler implementations [here](examples/auth-handlers.md).
 
 #### Fallbacks
 
 Connector provides the possibility to disable the remote service. 
 It means authentication operations like login, logout, password reset should be processed locally.
 
-To reach that, you need to implement the following fallback handlers on your handler class:
+### Implementing auth logic
+
+To make authentication service work, you need to replace your own logic.
+The following pointsshould be replaced:
+
+- Registration
+- Login
+- Password reset
+
+#### Registration
+
+- In a case if you follow default Laravel implementation of user registration, you should replace the trait 
+`Illuminate\Foundation\Auth\RegistersUsers` with `Slides\Connector\Auth\Concerns\RegistersUsers` 
+at the controller `App\Http\Controllers\Auth\RegistrationController`.`
+
+> If you have customized registration logic, you can override trait's methods.
+
+- Delete the `create()` method since it implements by `RegistersUsers` trait.
+
+#### Login
+
+In a case if you follow default Laravel implementation of user registration, you should replace the trait 
+`Illuminate\Foundation\Auth\AuthenticatesUsers` with `Slides\Connector\Auth\Concerns\AuthenticatesUsers` 
+at the controller `App\Http\Controllers\Auth\LoginController`.
+
+> If you have customized login logic, you can override trait's methods.
+
+#### Password reset
+
+- In a case if you follow default Laravel implementation of user registration, you should replace the traits on the following files:
+  - *`App\Http\Controllers\Auth\ForgotPasswordController`*: 
+  replace `Illuminate\Foundation\Auth\SendsPasswordResetEmails` with `Slides\Connector\Auth\Concerns\SendsPasswordResetEmails`
+  - *`App\Http\Controllers\Auth\ResetPasswordController`*: 
+  replace `Illuminate\Foundation\Auth\ResetsPasswords` with `Slides\Connector\Auth\Concerns\ResetsPasswords`
+
+> If you have customized password resetting logic, you can override trait's methods.
+
+- If your `User` model doesn't implement `UserHelpers` trait, define the following method there:
 
 ```php
-fallbackLogin($guard, string $email, string $password, bool $remember = false): bool
-fallbackLogout($guard): void
-fallbackForgot($guard, string $email): bool
-fallbackValidateReset($guard, string $email): string|false
-fallbackResetPassword($guard, string $token, string $email, string $password, string $confirmation): array|false
+/**
+ * Send the password reset notification.
+ *
+ * @param string $token
+ *
+ * @return void
+ */
+public function sendPasswordResetNotification(string $token)
+{
+    $this->notify(new \Slides\Connector\Auth\Notifications\ResetPasswordNotification($token));
+}
 ```
-
-### Testing
 

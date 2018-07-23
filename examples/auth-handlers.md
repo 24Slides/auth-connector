@@ -1,4 +1,4 @@
-# AuthHandlers with default Laravel configuration and the Session guard as a fallback
+# Auth handlers based on default Laravel application
 
 ```php
 <?php
