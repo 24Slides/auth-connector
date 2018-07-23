@@ -90,6 +90,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function loadGuards()
     {
+        // Skip loading guards if an application running in the console
+        if($this->app->runningInConsole()) {
+            return;
+        }
+
         $this->app['authService']->setGuard(
             $this->app['auth']->guard('authService')
         );

@@ -36,11 +36,10 @@ class AuthHandlers
      * Create a user locally and remotely
      *
      * @param array $attributes
-     * @param int $source
      *
      * @return User
      */
-    public function create(array $attributes, int $source)
+    public function create(array $attributes)
     {
         // Here you should define your own logic of user creation process, or refer to a corresponding service
         // As a result, the function should retrieve an updated user model instance

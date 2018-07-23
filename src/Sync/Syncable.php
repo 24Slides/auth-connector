@@ -12,7 +12,7 @@ interface Syncable
     /**
      * Retrieve user's ID
      *
-     * @return string|null
+     * @return int
      */
     public function retrieveId();
 
@@ -26,7 +26,7 @@ interface Syncable
     /**
      * Retrieve user's email
      *
-     * @return string|null
+     * @return string
      */
     public function retrieveEmail();
 
@@ -47,7 +47,7 @@ interface Syncable
     /**
      * Retrieve user's updated_at column
      *
-     * @return \Carbon\Carbon
+     * @return \Carbon\Carbon|null
      */
     public function retrieveUpdatedAt();
 }
