@@ -5,22 +5,6 @@ synchronization, encryption etc.
 
 ## Getting Started
 
-### Private repositories as dependencies
-
-To allow installing private repositories through the composer, the easiest way is to obtain GitHub Oauth Access Token:
-
-- Paste the following code to `composer.json`
-```
-"repositories": [
-    {
-        "type": "vcs",
-        "url": "git@github.com:24Slides/24slides.git"
-    }
-],
-```
-- Go to https://github.com/settings/tokens, click "Generate new token", set "Composer" as a description, 
-tick `repo` and click "Generate", that token will be asked later on `composer require`.
-
 ### Installation
 
 - Define the following environment variables, obtain them from the server admin:
@@ -29,7 +13,7 @@ tick `repo` and click "Generate", that token will be asked later on `composer re
 JWT_SECRET=
 
 SERVICE_AUTH_ENALBED=true
-SERVICE_AUTH_URL=https://auth.24slides.com/v1
+SERVICE_AUTH_URL=
 SERVICE_AUTH_PUBLIC=
 SERVICE_AUTH_SECRET=
 ```
