@@ -58,7 +58,7 @@ class SyncUsers extends \Illuminate\Console\Command
      */
     public function handle()
     {
-        $this->authClient = new AuthClient(Auth::guard());
+        $this->authClient = new AuthClient();
 
         $users = Auth::getProvider()->createModel()
             ->newQuery()
