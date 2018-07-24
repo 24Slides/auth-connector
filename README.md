@@ -9,18 +9,6 @@ synchronization, encryption etc.
 
 To allow installing private repositories through the composer, the easiest way is to obtain GitHub Oauth Access Token:
 
-- Go to https://github.com/settings/tokens, click "Generate new token", set "Composer" as a description, 
-tick `repo` and click "Generate".
-- Create a file `auth.json` in the project root, insert the following code:
-```
-{
-  "github-oauth": {
-    "github.com": "..."
-  }
-}
-```
-- Paste your generated token instead of dots.
-- Add `auth.json` to `.gitignore`
 - Paste the following code to `composer.json`
 ```
 "repositories": [
@@ -30,17 +18,20 @@ tick `repo` and click "Generate".
     }
 ],
 ```
+- Go to https://github.com/settings/tokens, click "Generate new token", set "Composer" as a description, 
+tick `repo` and click "Generate", that token will be asked later on `composer require`.
 
 ### Installation
 
 - Define the following environment variables, obtain them from the server admin:
 
 ```
+JWT_SECRET=
+
+SERVICE_AUTH_ENALBED=true
 SERVICE_AUTH_URL=https://auth.24slides.com/v1
 SERVICE_AUTH_PUBLIC=
 SERVICE_AUTH_SECRET=
-
-JWT_SECRET=
 ```
 - Install a dependency via Composer: `composer require 24slides/auth-connector`
 - Define auth guards at `config/auth.php`:
@@ -78,6 +69,9 @@ JWT_SECRET=
 
 To allow syncing users, implement the `Slides\Connector\Auth\Sync\Syncable` interface on your `User` model.
 
+There is a trait helper `Slides\Connector\Auth\Concerns\UserHelper` which implements methods, 
+if you have custom attributes just override methods from there.
+
 ### Authentication handlers
 
 Handlers implement authentication operation and wrapped into database transactions. It's just a layer to keep logic in one place.
@@ -96,12 +90,12 @@ Once file has created, you should add to the `boot` in the `app/Services/AuthSer
 $this->app['authService']->loadHandlers($this->app[\App\Services\Auth\AuthHandlers::class]);
 ```
 
-You can find examples of handler implementations [here](examples/auth-handlers.md).
+You can find an example of handlers implementations [here](examples/auth-handlers.md).
 
 #### Fallbacks
 
-Connector provides the possibility to disable the remote service. 
-It means authentication operations like login, logout, password reset should be processed locally.
+Connector provides the possibility to disable the remote service by setting `SERVICE_AUTH_ENALBED=false`.
+It means authentication operations like login, logout, password reset will be processed only locally.
 
 ### Implementing auth logic
 
