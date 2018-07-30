@@ -19,5 +19,7 @@
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>
+        <env name="SERVICE_AUTH_PUBLIC" value="dummy"/>
+        <env name="SERVICE_AUTH_SECRET" value="dummy"/>
     </php>
 </phpunit>

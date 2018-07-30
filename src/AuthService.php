@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Auth\Guard as GuardContract;
 
 /**
- * Class Service
+ * Class AuthService
  *
  * @package Slides\Connector\Auth
  */
@@ -330,5 +330,25 @@ class AuthService
     public function setFallbackGuard(GuardContract $guard): void
     {
         $this->fallbackGuard = $guard;
+    }
+
+    /**
+     * Set HTTP Client.
+     *
+     * @param Client $client
+     */
+    public function setClient(Client $client): void
+    {
+        $this->client = $client;
+    }
+
+    /**
+     * Get HTTP client.
+     *
+     * @return Client
+     */
+    public function getClient(): Client
+    {
+        return $this->client;
     }
 }

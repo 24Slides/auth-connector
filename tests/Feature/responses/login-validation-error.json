@@ -1,0 +1,5 @@
+{
+  "status": "error",
+  "message": "{\"email\":[\"The email must be a valid email address.\"]}",
+  "status_code": 422
+}
