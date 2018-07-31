@@ -1,0 +1,5 @@
+{
+  "status": "error",
+  "message": "{\"email\":[\"The email has already been taken.\"]}",
+  "status_code": 422
+}
