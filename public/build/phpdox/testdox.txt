@@ -1,0 +1,28 @@
+Slides\Connector\Auth\Tests\Feature\AuthService
+ [x] Disabled
+ [x] Login success
+ [x] Login invalid
+ [x] Login validation error
+ [x] Register success
+ [x] Register validation error
+ [x] Forgot success
+ [x] Forgot error
+ [x] Validate password reset token success
+ [x] Validate password reset token error
+ [x] Reset password success
+ [x] Reset password error
+ [x] Update success
+ [x] Update error
+ [x] Handle
+ [x] Handle with parameters
+ [x] Handle with invalid parameters
+ [x] Handle invalid
+ [x] Handle failed
+ [x] Handle fallback
+ [x] Handle fallback failed
+
+Slides\Connector\Auth\Tests\Unit\Client
+ [x] Boot
+ [x] Has request
+ [x] Invalid request
+

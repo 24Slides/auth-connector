@@ -1,0 +1,10 @@
+{
+  "status": "success",
+  "user": {
+    "name": "Test",
+    "email": "test@test.com",
+    "updated_at": "2018-07-30 15:27:48",
+    "created_at": "2018-07-30 15:27:48"
+  },
+  "token": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9hdXRoLjI0c2xpZGVzLmxvY2FsOjgwODBcL3YxXC9yZWdpc3RlciIsImlhdCI6MTUzMjk2NDQ2OCwiZXhwIjoxNTMyOTY4MDY4LCJuYmYiOjE1MzI5NjQ0NjgsImp0aSI6InR3bEdHWEljS3BQWGl0MlIiLCJzdWIiOjU0LCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3IiwidXNlcklkIjoxfQ.0bYHOz5LTzqGbaZJSX_7e7Eqm8no2M95ur1_CJO3ARw"
+}

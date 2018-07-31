@@ -1,6 +1,6 @@
 <?php
 
-namespace AtlassianConnectCore\Tests;
+namespace Slides\Connector\Auth\Tests;
 
 abstract class TestCase extends \Orchestra\Testbench\TestCase
 {
@@ -60,5 +60,17 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
 
         $app['config']->set('auth.providers.users.model', \Slides\Connector\Auth\ServiceProvider::class);
         $app['config']->set('auth.guards.web.driver', 'authServiceToken');
+    }
+
+    /**
+     * Load a stub file.
+     *
+     * @param string $filename
+     *
+     * @return bool|string
+     */
+    protected function stub(string $filename)
+    {
+        return file_get_contents($filename);
     }
 }

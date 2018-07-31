@@ -51,18 +51,20 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
      * @param UserProvider $provider
      * @param Request $request
      * @param AuthService $authService
+     * @param Client|null $client
      */
     public function __construct(
         UserProvider $provider,
         Request $request,
-        AuthService $authService
+        AuthService $authService,
+        Client $client = null
     )
     {
         $this->provider = $provider;
         $this->request = $request;
         $this->authService = $authService;
 
-        $this->client = new Client();
+        $this->client = $client ?? new Client();
     }
 
     /**
