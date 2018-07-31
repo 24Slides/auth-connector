@@ -7,6 +7,6 @@ build:
       tests:
         override:
           - command: vendor/bin/phpunit --verbose --coverage-text --coverage-clover=coverage.clover
-        coverage:
-          file: coverage.clover
-          format: clover
+            coverage:
+              file: coverage.clover
+              format: clover
