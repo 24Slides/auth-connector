@@ -14,9 +14,16 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
 
     public function testDisabled()
     {
-        $this->app['config']->set('connector.auth.enabled', true);
+        $service = $this->mockService();
+        $config = $this->app['config'];
 
-        static::assertFalse($this->mockService()->disabled());
+        $config->set('connector.auth.enabled', true);
+
+        static::assertFalse($service->disabled());
+
+        $config->set('connector.auth.enabled', false);
+
+        static::assertTrue($service->disabled());
     }
 
     public function testLoginSuccess()
@@ -162,6 +169,67 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertFalse($response);
     }
 
+    public function testHandle()
+    {
+        static::assertTrue(
+            $this->mockService()->handle('test')
+        );
+    }
+
+    public function testHandleWithParameters()
+    {
+        static::assertTrue(
+            $this->mockService()->handle('testParams', ['string' => 'Hello world!', 'array' => []])
+        );
+    }
+
+    /**
+     * @expectedException \ArgumentCountError
+     */
+    public function testHandleWithInvalidParameters()
+    {
+        static::assertTrue(
+            $this->mockService()->handle('testParams')
+        );
+    }
+
+    /**
+     * @expectedException \InvalidArgumentException
+     */
+    public function testHandleInvalid()
+    {
+        $this->mockService()->handle('unknown');
+    }
+
+    public function testHandleFailed()
+    {
+        $output = $this->mockService()->handle('testFailed', [], function($e) {
+            static::assertInstanceOf(\Exception::class, $e);
+
+            return false;
+        });
+
+        static::assertFalse($output);
+    }
+
+    public function testHandleFallback()
+    {
+        static::assertTrue(
+            $this->mockService()->handleFallback('test')
+        );
+    }
+
+    public function testHandleFallbackFailed()
+    {
+        $output = $this->mockService()->handleFallback('testFailed', [], function ($e) {
+            static::assertInstanceOf(\Exception::class, $e);
+
+            return false;
+        });
+
+        static::assertFalse($output);
+    }
+
     /**
      * Mock the authentication service
      *
@@ -171,11 +239,14 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
      */
     protected function mockService(array $responses = [])
     {
+        require_once __DIR__ . '/classes/AuthHandlers.php';
+
         $service = new AuthService(
             $this->mockClient($responses)
         );
 
         $service->setGuard($this->mockGuard($service));
+        $service->loadHandlers(new \AuthHandlers());
 
         return $service;
     }

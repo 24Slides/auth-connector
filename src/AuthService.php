@@ -304,7 +304,7 @@ class AuthService
                 throw $e;
             }
 
-            $output = $fallback();
+            $output = $fallback($e);
         }
 
         DB::commit();
