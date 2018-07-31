@@ -1,7 +1,6 @@
 language: php
 
 php:
-  - 7.0.12
   - 7.1
   - 7.2
 
@@ -12,4 +11,4 @@ sudo: false
 
 install: travis_retry composer install --no-interaction --prefer-dist --no-suggest
 
-script: vendor/bin/phpunit --verbose 
+script: vendor/bin/phpunit --verbose
