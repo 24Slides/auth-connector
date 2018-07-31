@@ -7,10 +7,10 @@ use Slides\Connector\Auth\Client;
 class ClientTest extends \Slides\Connector\Auth\Tests\TestCase
 {
     /**
-     * @covers Client::boot()
-     * @covers Client::signature()
-     * @covers Client::credential()
-     * @covers Client::bearerTokenHeader()
+     * @covers \Slides\Connector\Auth\Client::boot()
+     * @covers \Slides\Connector\Auth\Client::signature()
+     * @covers \Slides\Connector\Auth\Client::credential()
+     * @covers \Slides\Connector\Auth\Client::bearerTokenHeader()
      */
     public function testBoot()
     {

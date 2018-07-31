@@ -3,7 +3,6 @@
 namespace Slides\Connector\Auth\Tests\Feature;
 
 use Slides\Connector\Auth\AuthService;
-use Slides\Connector\Auth\Client;
 use GuzzleHttp\Psr7\Response;
 
 class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
@@ -23,8 +22,8 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
     }
 
     /**
-     * @covers AuthService::login()
-     * @covers Client::login()
+     * @covers \Slides\Connector\Auth\AuthService::login()
+     * @covers \Slides\Connector\Auth\Client::login()
      */
     public function testLoginSuccess()
     {
@@ -63,8 +62,8 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
     }
 
     /**
-     * @covers AuthService::register()
-     * @covers Client::register()
+     * @covers \Slides\Connector\Auth\AuthService::register()
+     * @covers \Slides\Connector\Auth\Client::register()
      */
     public function testRegisterSuccess()
     {
@@ -90,8 +89,8 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
     }
 
     /**
-     * @covers AuthService::forgot()
-     * @covers Client::forgot()
+     * @covers \Slides\Connector\Auth\AuthService::forgot()
+     * @covers \Slides\Connector\Auth\Client::forgot()
      */
     public function testForgotSuccess()
     {
@@ -112,8 +111,8 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
     }
 
     /**
-     * @covers AuthService::validatePasswordResetToken()
-     * @covers Client::validateReset()
+     * @covers \Slides\Connector\Auth\AuthService::validatePasswordResetToken()
+     * @covers \Slides\Connector\Auth\Client::validateReset()
      */
     public function testValidatePasswordResetTokenSuccess()
     {
@@ -138,8 +137,8 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
     }
 
     /**
-     * @covers AuthService::resetPassword()
-     * @covers Client::reset()
+     * @covers \Slides\Connector\Auth\AuthService::resetPassword()
+     * @covers \Slides\Connector\Auth\Client::reset()
      */
     public function testResetPasswordSuccess()
     {
@@ -164,8 +163,8 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
     }
 
     /**
-     * @covers AuthService::update()
-     * @covers Client::update()
+     * @covers \Slides\Connector\Auth\AuthService::update()
+     * @covers \Slides\Connector\Auth\Client::update()
      */
     public function testUpdateSuccess()
     {

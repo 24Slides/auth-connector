@@ -22,4 +22,12 @@
         <env name="SERVICE_AUTH_PUBLIC" value="dummy"/>
         <env name="SERVICE_AUTH_SECRET" value="dummy"/>
     </php>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-clover" target="tests/_reports"/>
+    </logging>
 </phpunit>
