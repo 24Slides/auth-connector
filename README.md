@@ -4,6 +4,7 @@
 [![Software License][ico-license]](LICENSE.md)
 [![Build Status][ico-travis]][link-travis]
 [![Quality Score][ico-code-quality]][link-code-quality]
+[![Code Coverage][ico-code-coverage]][link-code-coverage]
 [![Total Downloads][ico-downloads]][link-downloads]
 
 Simplifies integration with third-party services including ready-to-use solutions like HTTP Client, Auth Guard, 
@@ -150,10 +151,12 @@ Route::get('password/reset/{token}/{email}', 'Auth\ResetPasswordController@showR
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
 [ico-travis]: https://img.shields.io/travis/24slides/auth-connector/master.svg?style=flat-square
 [ico-code-quality]: https://img.shields.io/scrutinizer/g/24slides/auth-connector.svg?style=flat-square
+[ico-code-coverage]: https://scrutinizer-ci.com/g/24Slides/auth-connector/badges/coverage.png
 [ico-downloads]: https://img.shields.io/packagist/dt/24slides/auth-connector.svg?style=flat-square
 
 [link-packagist]: https://packagist.org/packages/24slides/auth-connector
 [link-travis]: https://travis-ci.org/24Slides/auth-connector
 [link-scrutinizer]: https://scrutinizer-ci.com/g/24slides/auth-connector/code-structure
 [link-code-quality]: https://scrutinizer-ci.com/g/24slides/auth-connector
+[link-code-coverage]: https://scrutinizer-ci.com/g/24Slides/auth-connector
 [link-downloads]: https://packagist.org/packages/24slides/auth-connector
