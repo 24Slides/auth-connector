@@ -1,7 +1,7 @@
-# Since we need to run part of your test suite, most libraries will first
-# need to install vendors, for example via composer.
-before_commands:
-    - composer install --dev
+filter:
+    excluded_paths: [tests/*]
 
 tools:
-    php_code_coverage: true
+    external_code_coverage:
+        timeout: 600
+        runs: 3
