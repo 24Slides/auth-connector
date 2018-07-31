@@ -3,15 +3,11 @@
 namespace Slides\Connector\Auth\Tests\Feature;
 
 use Slides\Connector\Auth\AuthService;
+use Slides\Connector\Auth\Client;
 use GuzzleHttp\Psr7\Response;
 
 class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
 {
-    /**
-     * @var AuthService
-     */
-    protected $authService;
-
     public function testDisabled()
     {
         $service = $this->mockService();
@@ -26,6 +22,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertTrue($service->disabled());
     }
 
+    /**
+     * @covers AuthService::login()
+     * @covers Client::login()
+     */
     public function testLoginSuccess()
     {
         $service = $this->mockService([
@@ -62,6 +62,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         $service->login('test@testcom', 'secret', false);
     }
 
+    /**
+     * @covers AuthService::register()
+     * @covers Client::register()
+     */
     public function testRegisterSuccess()
     {
         $service = $this->mockService([
@@ -85,6 +89,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         $service->register(1, 'Test', 'test@test.com', 'secret');
     }
 
+    /**
+     * @covers AuthService::forgot()
+     * @covers Client::forgot()
+     */
     public function testForgotSuccess()
     {
         $service = $this->mockService([
@@ -103,6 +111,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertFalse($service->forgot('test@test.com'));
     }
 
+    /**
+     * @covers AuthService::validatePasswordResetToken()
+     * @covers Client::validateReset()
+     */
     public function testValidatePasswordResetTokenSuccess()
     {
         $service = $this->mockService([
@@ -125,6 +137,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertFalse($response, 'test@test.com');
     }
 
+    /**
+     * @covers AuthService::resetPassword()
+     * @covers Client::reset()
+     */
     public function testResetPasswordSuccess()
     {
         $service = $this->mockService([
@@ -147,6 +163,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertFalse($response);
     }
 
+    /**
+     * @covers AuthService::update()
+     * @covers Client::update()
+     */
     public function testUpdateSuccess()
     {
         $service = $this->mockService([
