@@ -111,8 +111,12 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function registerFacades()
     {
+        $this->app->singleton(Client::class, function($app) {
+            return new Client();
+        });
+
         $this->app->singleton(AuthService::class, function($app) {
-            return new AuthService(new Client());
+            return new AuthService($app[Client::class]);
         });
 
         $this->app->bind('authService', function($app) {
@@ -131,7 +135,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             return $app->make(TokenGuard::class, [
                 'provider' => $app['auth']->createUserProvider($app['config']['auth.guards.authService.provider']),
                 'request' => $app['request'],
-                'authService' => $app['authService']
+                'authService' => $app['authService'],
+                'client' => $app[Client::class]
             ]);
         });
 
