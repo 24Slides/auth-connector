@@ -167,7 +167,7 @@ class SyncUsers extends \Illuminate\Console\Command
         $email = $user->getEmail();
 
         // If a user already exists, skip the process
-        if($model = Auth::getProvider()->retrieveByCredentials(['email' => $email])) {
+        if(Auth::getProvider()->retrieveByCredentials(['email' => $email])) {
             $this->warn("User with email {$email} already exists, unable to create");
 
             return;

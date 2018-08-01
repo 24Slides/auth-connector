@@ -240,7 +240,7 @@ class Client
     /**
      * Checks whether status of the response is successful
      *
-     * @param bool Whether need to check for "success" status from the response
+     * @param bool $withStatus Whether need to check for "success" status from the response
      *
      * @return bool
      */
