@@ -88,6 +88,28 @@ class AuthService
     }
 
     /**
+     * Authenticate a user without the password.
+     *
+     * Warning! This method has implemented temporarily to make able to login users
+     * who use Social Auth on 24Templates. MUST NOT be used in any other cases.
+     *
+     * @param string $email
+     * @param bool $remember
+     *
+     * @return mixed
+     *
+     * @throws
+     */
+    public function unsafeLogin(string $email, bool $remember = false)
+    {
+        if($this->disabled()) {
+            return $this->handleFallback('unsafeLogin', compact('email', 'remember'));
+        }
+
+        return $this->guard->unsafeLogin($email, $remember);
+    }
+
+    /**
      * Logout a user.
      *
      * @return mixed

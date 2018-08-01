@@ -165,6 +165,33 @@ class AuthHandlers
     }
 
     /**
+     * Login a user without the password when remote service is disabled
+     *
+     * Warning! This method has implemented temporarily to make able to login users
+     * who use Social Auth on 24Templates. MUST NOT be used in any other cases.
+     * 
+     * @param SessionGuard $guard
+     * @param string $email
+     * @param bool $remember
+     *
+     * @return bool
+     */
+    public function fallbackUnsafeLogin(SessionGuard $guard, string $email, bool $remember = false)
+    {
+        $user = User::query()
+            ->where('email', $email)
+            ->first();
+        
+        if(!$user) {
+            return false;
+        }
+        
+        $guard->login($user, $remember);
+        
+        return true;
+    }
+
+    /**
      * Logout a user when remote service is disabled
      *
      * @param SessionGuard $guard

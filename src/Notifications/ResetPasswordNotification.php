@@ -41,7 +41,7 @@ class ResetPasswordNotification extends Notification
     /**
      * Build the mail representation of the notification.
      *
-     * @param  \App\User  $notifiable
+     * @param  \Illuminate\Contracts\Auth\CanResetPassword  $notifiable
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail($notifiable)
