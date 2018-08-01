@@ -25,6 +25,14 @@
     <filter>
         <whitelist processUncoveredFilesFromWhitelist="true">
             <directory suffix=".php">src</directory>
+            <exclude>
+                <directory>src/Commands</directory>
+                <directory>src/Concerns</directory>
+                <directory>src/Facades</directory>
+                <directory>src/Notifications</directory>
+                <file>src/ServiceProvider.php</file>
+                <file>src/TokenGuard.php</file>
+            </exclude>
         </whitelist>
     </filter>
     <logging>

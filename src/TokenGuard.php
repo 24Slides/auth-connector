@@ -96,6 +96,37 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
     }
 
     /**
+     * Authenticate a user without the password.
+     *
+     * Warning! This method has implemented temporarily to make able to login users
+     * who use Social Auth on 24Templates. MUST NOT be used in any other cases.
+     *
+     * @param string $email
+     * @param string $password
+     * @param bool $remember
+     *
+     * @return mixed
+     *
+     * @throws
+     */
+    public function unsafeLogin(string $email, bool $remember = false)
+    {
+        $this->client->request('unsafeLogin', compact('email', 'remember'));
+
+        if(!$this->client->success()) {
+            return false;
+        }
+
+        if(!$this->token = $this->client->getToken()) {
+            return false;
+        }
+
+        $this->storeToken($this->token);
+
+        return $this->token;
+    }
+
+    /**
      * Get the currently authenticated user.
      *
      * @return \Illuminate\Contracts\Auth\Authenticatable|null

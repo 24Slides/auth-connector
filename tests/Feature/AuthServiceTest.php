@@ -62,6 +62,46 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
     }
 
     /**
+     * @covers \Slides\Connector\Auth\AuthService::unsafeLogin()
+     * @covers \Slides\Connector\Auth\Client::unsafeLogin()
+     */
+    public function testUnsafeLoginSuccess()
+    {
+        $service = $this->mockService([
+            new Response(200, [], $response = $this->stub(__DIR__ . '/responses/unsafe-login-success.json'))
+        ]);
+
+        $token = $service->unsafeLogin('test@test.com', false);
+
+        $expected = array_get(json_decode($response, true), 'token');
+
+        static::assertSame($expected, $token);
+    }
+
+    public function testUnsafeLoginInvalid()
+    {
+        $service = $this->mockService([
+            new Response(200, [], $this->stub(__DIR__ . '/responses/unsafe-login-invalid.json'))
+        ]);
+
+        $token = $service->unsafeLogin('test@test.com', false);
+
+        static::assertFalse($token);
+    }
+
+    /**
+     * @expectedException \Slides\Connector\Auth\Exceptions\ValidationException
+     */
+    public function testUnsafeLoginValidationError()
+    {
+        $service = $this->mockService([
+            new Response(422, [], $this->stub(__DIR__ . '/responses/unsafe-login-validation-error.json'))
+        ]);
+
+        $service->login('test@testcom', false);
+    }
+
+    /**
      * @covers \Slides\Connector\Auth\AuthService::register()
      * @covers \Slides\Connector\Auth\Client::register()
      */

@@ -48,7 +48,7 @@ trait ResetsPasswords
     {
         $this->validate($request, $this->rules(), $this->validationErrorMessages());
 
-        if($response = AuthService::resetPassword(
+        if(AuthService::resetPassword(
             $request->input('token'),
             $email = $request->input('email'),
             $password = $request->input('password'),
