@@ -147,8 +147,6 @@ public function sendPasswordResetNotification(string $token)
 Route::get('password/reset/{token}/{email}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
 ```
 
-[![Total Downloads](https://poser.pugx.org/24slides/auth-connector/downloads)
-
 [ico-version]: https://poser.pugx.org/24slides/auth-connector/v/stable?format=flat-square
 [ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
 [ico-travis]: https://img.shields.io/travis/24Slides/auth-connector.svg?style=flat-square
