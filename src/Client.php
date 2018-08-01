@@ -40,7 +40,7 @@ class Client
      * @var array
      */
     protected $requests = [
-        'login', 'register', 'refresh', 'me', 'update',
+        'login', 'unsafeLogin', 'register', 'refresh', 'me', 'update',
         'forgot', 'validateReset', 'reset', 'sync',
     ];
 
@@ -100,6 +100,25 @@ class Client
         return $this->client->post('login', ['json' => [
             'email' => $email,
             'password' => $password,
+            'remember' => $remember
+        ]]);
+    }
+
+    /**
+     * Login a user
+     *
+     * Warning! This method has implemented temporarily to make able to login users
+     * who use Social Auth on 24Templates. MUST NOT be used in any other cases.
+     *
+     * @param string $email
+     * @param bool $remember
+     *
+     * @return ResponseInterface
+     */
+    protected function unsafeLogin(string $email, bool $remember = false): ResponseInterface
+    {
+        return $this->client->post('unsafe-login', ['json' => [
+            'email' => $email,
             'remember' => $remember
         ]]);
     }
