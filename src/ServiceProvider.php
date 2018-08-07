@@ -26,7 +26,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function boot()
     {
         $this->loadPublishes();
-        $this->loadMigrations();
         $this->loadConsoleCommands();
         $this->loadGuards();
     }
@@ -54,16 +53,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected function loadPublishes()
     {
         $this->publishes([__DIR__ . '/../config/connector.php' => config_path('connector.php')], 'config');
-    }
-
-    /**
-     * Load migrations
-     *
-     * @return void
-     */
-    protected function loadMigrations()
-    {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->publishes([__DIR__ . '/../database/migrations/' => database_path('migrations')], 'migrations');
     }
 
     /**

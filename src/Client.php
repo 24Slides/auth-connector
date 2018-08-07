@@ -194,13 +194,15 @@ class Client
      * Synchronize remote and local users
      *
      * @param array $users
+     * @param array $modes
      *
      * @return ResponseInterface
      */
-    protected function sync(array $users): ResponseInterface
+    protected function sync(array $users, array $modes): ResponseInterface
     {
         return $this->client->post('sync', ['json' => [
-            'users' => $users
+            'users' => $users,
+            'modes' => $modes
         ]]);
     }
 

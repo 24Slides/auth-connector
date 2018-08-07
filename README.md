@@ -56,6 +56,16 @@ SERVICE_AUTH_SECRET=
 
 > If you want to enable IDE features like hints, you need to install [barryvdh/laravel-ide-helper](https://github.com/barryvdh/laravel-ide-helper).
 
+- Publish config and migrations:
+
+```php
+php artisan vendor:publish --provider Slides\Connector\Auth\ServiceProvider
+```
+
+- Run the published migration: `php artisan migrate`
+
+> The migration adds `remote_id` column to your User model which is supposed to be an identificator of synced users.
+
 ### Syncing users
 
 To allow syncing users, implement the `Slides\Connector\Auth\Sync\Syncable` interface on your `User` model.

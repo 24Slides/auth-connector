@@ -215,7 +215,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
             return null;
         }
 
-        return $this->provider->retrieveById($userId);
+        return $this->provider->retrieveByCredentials(['remote_id' => $userId]);
     }
 
     /**

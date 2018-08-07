@@ -20,7 +20,8 @@ class SyncUsers extends \Illuminate\Console\Command
      *
      * @var string
      */
-    protected $signature = 'connector:sync-users';
+    protected $signature = 'connector:sync-users
+                            {--passwords= : Allow syncing passwords (can rewrite remotely and locally) }';
 
     /**
      * The console command description.
@@ -38,6 +39,13 @@ class SyncUsers extends \Illuminate\Console\Command
      * @var AuthService
      */
     protected $authService;
+
+    /**
+     * Whether remote and local passwords can be overwritten.
+     *
+     * @var bool
+     */
+    private $passwords;
 
     /**
      * SyncUsers constructor.
@@ -58,32 +66,43 @@ class SyncUsers extends \Illuminate\Console\Command
      */
     public function handle()
     {
+        $this->passwords = $this->hasOption('passwords');
         $this->authClient = new AuthClient();
 
+        /** @var \Illuminate\Database\Eloquent\Collection $users */
         $users = Auth::getProvider()->createModel()
             ->newQuery()
             ->get();
+
+        if($users->isEmpty()) {
+            $this->info('No users found.');
+            return;
+        }
 
         if(!$this->confirm('There are ' . $users->count() . ' users to sync. Continue?')) {
             return;
         }
 
-        $response = $this->authClient->request('sync', ['users' => $this->formatUsers($users)]);
+        $response = $this->authClient->request('sync', [
+            'users' => $this->formatUsers($users),
+            'modes' => $this->formatModes()
+        ]);
+
         $difference = $response['difference'];
         $remoteStats = $response['stats'];
 
         $this->writeStats('Remote affection', array_keys($remoteStats), array_values($remoteStats));
 
         if(!count($difference)) {
-            $this->info('There are no remote changes!');
+            $this->info('There are no changes to apply locally.');
         }
         else {
             $this->info('Remote changes detected, applying...');
+
+            $localStats = $this->applyDifference($difference);
+
+            $this->writeStats('Local affection', array_keys($localStats), array_values($localStats));
         }
-
-        $localStats = $this->applyDifference($difference);
-
-        $this->writeStats('Local affection', array_keys($localStats), array_values($localStats));
     }
 
     /**
@@ -99,6 +118,7 @@ class SyncUsers extends \Illuminate\Console\Command
             ->map(function(Syncable $user) {
                 return [
                     'id' => $user->retrieveId(),
+                    'remoteId' => $user->retrieveRemoteId(),
                     'name' => $user->retrieveName(),
                     'email' => $user->retrieveEmail(),
                     'password' => $user->retrievePassword(),
@@ -194,7 +214,14 @@ class SyncUsers extends \Illuminate\Console\Command
             return;
         }
 
-        $this->authService->handle(AuthService::HANDLER_USER_SYNC_UPDATE, ['remote' => $user, 'local' => $model]);
+        if(!$this->passwords) {
+            $user->resetPassword();
+        }
+
+        $this->authService->handle(AuthService::HANDLER_USER_SYNC_UPDATE, [
+            'remote' => $user,
+            'local' => $model
+        ]);
     }
 
     /**
@@ -229,6 +256,7 @@ class SyncUsers extends \Illuminate\Console\Command
     {
         return array_map(function(array $user) {
             return new SyncUser(
+                array_get($user, 'id'),
                 array_get($user, 'name'),
                 array_get($user, 'email'),
                 array_get($user, 'password'),
@@ -237,5 +265,19 @@ class SyncUsers extends \Illuminate\Console\Command
                 array_get($user, 'action')
             );
         }, $users);
+    }
+
+    /**
+     * Format the modes.
+     *
+     * @return array
+     */
+    protected function formatModes(): array
+    {
+        $modes = [
+            'passwords' => $this->passwords
+        ];
+
+        return array_keys(array_filter($modes));
     }
 }
