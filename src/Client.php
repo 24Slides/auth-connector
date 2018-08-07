@@ -200,7 +200,8 @@ class Client
     protected function sync(array $users): ResponseInterface
     {
         return $this->client->post('sync', ['json' => [
-            'users' => $users
+            'users' => $users,
+            'modes' => []
         ]]);
     }
 
