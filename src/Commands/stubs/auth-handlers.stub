@@ -45,7 +45,10 @@ class AuthHandlers
         // As a result, the function should retrieve an updated user model instance
         $user = User::create($attributes);
 
-        $this->authService->register($user->id, $user->name, $user->email, $attributes['password']);
+        $response = $this->authService->register($user->id, $user->name, $user->email, $attributes['password']);
+
+        $user->remote_id = array_get($response, 'user.id');
+        $user->save();
 
         return $user;
     }
@@ -120,7 +123,7 @@ class AuthHandlers
         // Here you should define the logic which updates a local user, available at $local argument and use
         // the data available at SyncUser instance.
         //
-        // Be careful regarding the password property, it's already hashed password so you don't need to hash it.
+        // Be careful regarding the password property, it's already hashed so you don't need to hash it.
     }
 
     /**

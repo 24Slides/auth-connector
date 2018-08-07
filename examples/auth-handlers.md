@@ -44,12 +44,14 @@ class AuthHandlers
     {
         $user = User::create($attributes);
 
-        $this->authService->register(
+        $response = $this->authService->register(
             $user->id,
             $user->name,
             $user->email,
             $attributes['password']
         );
+        
+        $user->update(['remote_id' => array_get($response, 'user.id')]);
 
         return $user;
     }
@@ -112,6 +114,7 @@ class AuthHandlers
     public function syncCreate(SyncUser $remote)
     {
         User::create([
+            'remote_id' => $remote->getRemoteId(),
             'name' => $remote->getName(),
             'email' => $remote->getEmail(),
             'password' => $remote->getPassword()
@@ -129,6 +132,7 @@ class AuthHandlers
     public function syncUpdate(SyncUser $remote, User $local)
     {
         $local->update([
+            'remote_id' => $remote->getRemoteId(),
             'email' => $remote->getEmail(),
             'name' => $remote->getName(),
             'password' => $remote->getPassword(),
