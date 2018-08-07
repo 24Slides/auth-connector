@@ -118,6 +118,7 @@ class SyncUsers extends \Illuminate\Console\Command
             ->map(function(Syncable $user) {
                 return [
                     'id' => $user->retrieveId(),
+                    'remoteId' => $user->retrieveRemoteId(),
                     'name' => $user->retrieveName(),
                     'email' => $user->retrieveEmail(),
                     'password' => $user->retrievePassword(),
@@ -255,6 +256,7 @@ class SyncUsers extends \Illuminate\Console\Command
     {
         return array_map(function(array $user) {
             return new SyncUser(
+                array_get($user, 'id'),
                 array_get($user, 'name'),
                 array_get($user, 'email'),
                 array_get($user, 'password'),

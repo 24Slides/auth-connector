@@ -5,12 +5,19 @@ namespace Slides\Connector\Auth\Sync;
 use Carbon\Carbon;
 
 /**
- * Class User
+ * Class User describes a remote user
  *
  * @package Slides\Connector\Auth\Sync
  */
 final class User
 {
+    /**
+     * User's remote ID
+     *
+     * @var int
+     */
+    protected $remoteId;
+
     /**
      * User's name
      *
@@ -66,6 +73,7 @@ final class User
     /**
      * User constructor.
      *
+     * @param int $remoteId
      * @param string|null $name
      * @param string $email
      * @param string|null $password
@@ -74,6 +82,7 @@ final class User
      * @param string $action
      */
     public function __construct(
+        int $remoteId,
         ?string $name,
         string $email,
         ?string $password,
@@ -82,6 +91,7 @@ final class User
         string $action
     )
     {
+        $this->remoteId = $remoteId;
         $this->name = $name;
         $this->email = $email;
         $this->password = $password;
@@ -148,5 +158,25 @@ final class User
     public function getRemoteAction(): string
     {
         return $this->remoteAction;
+    }
+
+    /**
+     * Get remote user ID
+     *
+     * @return int
+     */
+    public function getRemoteId(): int
+    {
+        return $this->remoteId;
+    }
+
+    /**
+     * Reset the password.
+     *
+     * @return void
+     */
+    public function resetPassword()
+    {
+        $this->password = null;
     }
 }

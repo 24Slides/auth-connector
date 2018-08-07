@@ -3,6 +3,7 @@
 namespace Slides\Connector\Auth\Concerns;
 
 use Slides\Connector\Auth\Notifications\ResetPasswordNotification;
+use Illuminate\Auth\Passwords\CanResetPassword;
 
 /**
  * Trait UserHelpers
@@ -11,12 +12,22 @@ use Slides\Connector\Auth\Notifications\ResetPasswordNotification;
  */
 trait UserHelpers
 {
+    use CanResetPassword;
+
     /**
      * @inheritdoc
      */
     public function retrieveId()
     {
         return $this->id;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function retrieveRemoteId()
+    {
+        return $this->remote_id;
     }
 
     /**
@@ -66,7 +77,7 @@ trait UserHelpers
      *
      * @return void
      */
-    public function sendPasswordResetNotification(string $token)
+    public function sendPasswordResetNotification($token)
     {
         $this->notify(new ResetPasswordNotification($token));
     }

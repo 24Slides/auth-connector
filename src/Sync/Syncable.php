@@ -17,6 +17,13 @@ interface Syncable
     public function retrieveId();
 
     /**
+     * Retrieve user's remote ID
+     *
+     * @return int
+     */
+    public function retrieveRemoteId();
+
+    /**
      * Retrieve user's name
      *
      * @return string|null
