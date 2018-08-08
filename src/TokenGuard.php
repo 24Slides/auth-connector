@@ -143,7 +143,11 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
         $user = null;
 
         if($token = $this->token()) {
-            $user = $this->retrieveUserFromToken($token);
+            if(!$user = $this->retrieveUserFromToken($token)) {
+                if(!$user = $this->syncInstantly()) {
+                    $this->logout();
+                }
+            }
         }
 
         return $this->user = $user;
@@ -216,6 +220,22 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
         }
 
         return $this->provider->retrieveByCredentials(['remote_id' => $userId]);
+    }
+
+    /**
+     * Trying to synchronize a user instantly by requesting using a token.
+     *
+     * If a user exists remotely, creates locally.
+     *
+     * @return \Illuminate\Contracts\Auth\Authenticatable|null
+     */
+    private function syncInstantly()
+    {
+        if($user = $this->authService->retrieveByToken()) {
+            return $this->authService->handle('sync.create', ['remote' => $user]);
+        }
+
+        return null;
     }
 
     /**
