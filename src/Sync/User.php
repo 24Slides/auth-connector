@@ -88,7 +88,7 @@ final class User
         ?string $password,
         ?string $updated,
         string $created,
-        string $action
+        string $action = null
     )
     {
         $this->remoteId = $remoteId;
@@ -153,9 +153,9 @@ final class User
     /**
      * Get remote action
      *
-     * @return string
+     * @return string|null
      */
-    public function getRemoteAction(): string
+    public function getRemoteAction(): ?string
     {
         return $this->remoteAction;
     }
@@ -178,5 +178,26 @@ final class User
     public function resetPassword()
     {
         $this->password = null;
+    }
+
+    /**
+     * Create a user from the response
+     *
+     * @param array $response
+     *
+     * @return static
+     */
+    public static function createFromResponse(array $response)
+    {
+        $user = array_get($response, 'user');
+
+        return new static(
+            array_get($user, 'id'),
+            array_get($user, 'name'),
+            array_get($user, 'email'),
+            array_get($user, 'password'),
+            array_get($user, 'updated_at'),
+            array_get($user, 'created_at')
+        );
     }
 }

@@ -4,6 +4,7 @@ namespace Slides\Connector\Auth;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Auth\Guard as GuardContract;
+use Slides\Connector\Auth\Sync\User as RemoteUser;
 
 /**
  * Class AuthService
@@ -245,6 +246,26 @@ class AuthService
         }
 
         return $response;
+    }
+
+    /**
+     * Retrieve a remote user
+     *
+     * @return RemoteUser|null
+     */
+    public function retrieveByToken()
+    {
+        if($this->disabled()) {
+            return null;
+        }
+
+        $response = $this->client->request('me');
+
+        if(!$this->client->success(true)) {
+            return null;
+        }
+
+        return RemoteUser::createFromResponse($response);
     }
 
     /**
