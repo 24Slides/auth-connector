@@ -222,6 +222,16 @@ class Client
     }
 
     /**
+     * Retrieve an authenticated user
+     *
+     * @return ResponseInterface
+     */
+    protected function me(): ResponseInterface
+    {
+        return $this->client->get('me');
+    }
+
+    /**
      * Make a request and retrieve a formatted response.
      *
      * @param string $name
@@ -238,7 +248,7 @@ class Client
         }
 
         if(!method_exists($this, $name)) {
-            throw new \InvalidArgumentException("Request `{$name}` listed but isn't implemented");
+            throw new \InvalidArgumentException("Request `{$name}` listed but is not implemented");
         }
 
         return $this->parseResponse(
@@ -340,6 +350,10 @@ class Client
         switch ($this->response->getStatusCode()) {
             case \Illuminate\Http\Response::HTTP_UNPROCESSABLE_ENTITY: {
                 throw ValidationException::create($message);
+                break;
+            }
+            case \Illuminate\Http\Response::HTTP_UNAUTHORIZED: {
+                throw new \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException('auth', $message);
                 break;
             }
             default: {
