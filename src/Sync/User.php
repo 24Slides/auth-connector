@@ -33,6 +33,13 @@ final class User
     protected $email;
 
     /**
+     * User's country code
+     *
+     * @var string
+     */
+    protected $country;
+
+    /**
      * User's encrypted password
      *
      * @var string
@@ -79,6 +86,7 @@ final class User
      * @param string|null $password
      * @param string|null $updated
      * @param string $created
+     * @param string|null $country
      * @param string $action
      */
     public function __construct(
@@ -88,6 +96,7 @@ final class User
         ?string $password,
         ?string $updated,
         string $created,
+        ?string $country,
         string $action = null
     )
     {
@@ -97,6 +106,7 @@ final class User
         $this->password = $password;
         $this->updated = new Carbon($updated);
         $this->created = new Carbon($created);
+        $this->country = $country;
         $this->remoteAction = $action;
     }
 
@@ -171,6 +181,16 @@ final class User
     }
 
     /**
+     * Get user's country
+     *
+     * @return string|null
+     */
+    public function getCountry()
+    {
+        return $this->country;
+    }
+
+    /**
      * Reset the password.
      *
      * @return void
@@ -197,7 +217,8 @@ final class User
             array_get($user, 'email'),
             array_get($user, 'password'),
             array_get($user, 'updated_at'),
-            array_get($user, 'created_at')
+            array_get($user, 'created_at'),
+            array_get($user, 'country')
         );
     }
 }

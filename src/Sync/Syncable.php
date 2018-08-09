@@ -38,6 +38,13 @@ interface Syncable
     public function retrieveEmail();
 
     /**
+     * Retrieve user's country code in ISO 3166-1 alpha-2 representation
+     *
+     * @return string
+     */
+    public function retrieveCountry();
+
+    /**
      * Retrieve user's hashed password
      *
      * @return string|null

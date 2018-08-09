@@ -70,8 +70,8 @@ php artisan vendor:publish --provider Slides\Connector\Auth\ServiceProvider
 
 To allow syncing users, implement the `Slides\Connector\Auth\Sync\Syncable` interface on your `User` model.
 
-There is a trait helper `Slides\Connector\Auth\Concerns\UserHelper` which implements methods, 
-if you have custom attributes just override methods from there.
+There is a trait helper `Slides\Connector\Auth\Concerns\UserHelper` which covers almost all the methods, except `retrieveCountry`, 
+which requires 2-digit country code (ISO 3166-1 alpha-2). If you have custom attributes just override methods from there.
 
 ### Authentication handlers
 

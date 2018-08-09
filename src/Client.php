@@ -130,16 +130,18 @@ class Client
      * @param string $name
      * @param string $email
      * @param string $password
+     * @param string $country
      *
      * @return ResponseInterface
      */
-    protected function register(int $userId, string $name, string $email, string $password): ResponseInterface
+    protected function register(int $userId, string $name, string $email, string $password, string $country): ResponseInterface
     {
         return $this->client->post('register', ['json' => [
             'userId' => $userId,
             'name' => $name,
             'email' => $email,
-            'password' => $password
+            'password' => $password,
+            'country' => $country
         ]]);
     }
 

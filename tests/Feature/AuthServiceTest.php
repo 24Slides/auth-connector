@@ -111,7 +111,7 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
             new Response(200, [], $expected = $this->stub(__DIR__ . '/responses/register-success.json'))
         ]);
 
-        $response = $service->register(1, 'Test', 'test@test.com', 'secret');
+        $response = $service->register(1, 'Test', 'test@test.com', 'secret', 'US');
 
         static::assertSame(json_decode($expected, true), $response);
     }
@@ -125,7 +125,7 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
             new Response(422, [], $this->stub(__DIR__ . '/responses/register-validation-error.json'))
         ]);
 
-        $service->register(1, 'Test', 'test@test.com', 'secret');
+        $service->register(1, 'Test', 'test@test.com', 'secret', 'US');
     }
 
     /**

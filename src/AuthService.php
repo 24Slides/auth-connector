@@ -135,16 +135,17 @@ class AuthService
      * @param string $name
      * @param string $email
      * @param string $password
+     * @param string $country
      *
      * @return array
      */
-    public function register(int $userId, string $name, string $email, string $password)
+    public function register(int $userId, string $name, string $email, string $password, string $country)
     {
         if($this->disabled()) {
             return [];
         }
 
-        return $this->client->request('register', compact('userId', 'name', 'email', 'password'));
+        return $this->client->request('register', compact('userId', 'name', 'email', 'password', 'country'));
     }
 
     /**
@@ -259,7 +260,12 @@ class AuthService
             return null;
         }
 
-        $response = $this->client->request('me');
+        try {
+            $response = $this->client->request('me');
+        }
+        catch(\Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException $e) {
+            return null;
+        }
 
         if(!$this->client->success(true)) {
             return null;
