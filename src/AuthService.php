@@ -260,7 +260,12 @@ class AuthService
             return null;
         }
 
-        $response = $this->client->request('me');
+        try {
+            $response = $this->client->request('me');
+        }
+        catch(\Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException $e) {
+            return null;
+        }
 
         if(!$this->client->success(true)) {
             return null;
