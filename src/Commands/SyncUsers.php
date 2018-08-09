@@ -122,6 +122,7 @@ class SyncUsers extends \Illuminate\Console\Command
                     'name' => $user->retrieveName(),
                     'email' => $user->retrieveEmail(),
                     'password' => $user->retrievePassword(),
+                    'country' => $user->retrieveCountry(),
                     'created_at' => $user->retrieveCreatedAt()->toDateTimeString(),
                     'updated_at' => $user->retrieveUpdatedAt()->toDateTimeString()
                 ];
@@ -262,6 +263,7 @@ class SyncUsers extends \Illuminate\Console\Command
                 array_get($user, 'password'),
                 array_get($user, 'updated_at'),
                 array_get($user, 'created_at'),
+                array_get($user, 'country'),
                 array_get($user, 'action')
             );
         }, $users);

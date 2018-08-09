@@ -135,16 +135,17 @@ class AuthService
      * @param string $name
      * @param string $email
      * @param string $password
+     * @param string $country
      *
      * @return array
      */
-    public function register(int $userId, string $name, string $email, string $password)
+    public function register(int $userId, string $name, string $email, string $password, string $country)
     {
         if($this->disabled()) {
             return [];
         }
 
-        return $this->client->request('register', compact('userId', 'name', 'email', 'password'));
+        return $this->client->request('register', compact('userId', 'name', 'email', 'password', 'country'));
     }
 
     /**
