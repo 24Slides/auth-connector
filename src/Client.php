@@ -252,6 +252,8 @@ class Client
         if(!method_exists($this, $name)) {
             throw new \InvalidArgumentException("Request `{$name}` listed but is not implemented");
         }
+        
+        \Illuminate\Support\Facades\Log::debug("[Connector] Sending a {$name} request", $parameters);
 
         return $this->parseResponse(
             $this->response = call_user_func_array([$this, $name], $parameters)
@@ -338,10 +340,14 @@ class Client
      */
     private function parseResponse(ResponseInterface $response): array
     {
+        \Illuminate\Support\Facades\Log::debug("[Connector] Got a response. Status: ", $response->getStatusCode());
+
         $decoded = (string) $response->getBody();
         $decoded = json_decode($decoded, true);
 
         $this->formatted = $decoded;
+
+        \Illuminate\Support\Facades\Log::debug(null, $decoded);
 
         if($this->success()) {
            return $this->formatted;
