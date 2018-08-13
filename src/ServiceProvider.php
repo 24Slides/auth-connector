@@ -28,6 +28,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->loadPublishes();
         $this->loadConsoleCommands();
         $this->loadGuards();
+        $this->loadRoutes();
     }
 
     /**
@@ -94,6 +95,18 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
                 $this->app['auth']->guard('fallback')
             );
         }
+    }
+
+    /**
+     * Load routes.
+     *
+     * @return void
+     */
+    protected function loadRoutes()
+    {
+        $this->loadRoutesFrom(__DIR__ . '/Http/routes.php');
+
+        \Illuminate\Support\Facades\Route::getRoutes()->refreshNameLookups();
     }
 
     /**

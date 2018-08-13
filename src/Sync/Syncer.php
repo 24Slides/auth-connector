@@ -84,13 +84,13 @@ class Syncer
     /**
      * Syncer constructor.
      *
-     * @param LocalUser[]|Collection $locals
+     * @param LocalUser[]|Collection|null $locals
      * @param array $modes
      * @param Client|null $client
      */
-    public function __construct(Collection $locals, array $modes = [], Client $client = null)
+    public function __construct(Collection $locals = null, array $modes = [], Client $client = null)
     {
-        $this->locals = $locals;
+        $this->locals = $locals ?? collect();
         $this->modes = $modes;
         $this->client = $client ?? new Client();
         $this->authService = app('authService');
@@ -121,16 +121,7 @@ class Syncer
     protected function parseResponse(array $response)
     {
         $foreigners = array_map(function (array $user) {
-            return new RemoteUser(
-                array_get($user, 'id'),
-                array_get($user, 'name'),
-                array_get($user, 'email'),
-                array_get($user, 'password'),
-                array_get($user, 'updated_at'),
-                array_get($user, 'created_at'),
-                array_get($user, 'country'),
-                array_get($user, 'action')
-            );
+            return $this->createRemoteUserFromResponse($user);
         }, array_get($response, 'difference'));
 
         $this->remoteStats = array_get($response, 'stats');
@@ -142,7 +133,7 @@ class Syncer
      *
      * @return void
      */
-    protected function apply()
+    public function apply()
     {
         foreach ($this->foreigners as $foreigner) {
             try {
@@ -157,36 +148,6 @@ class Syncer
                 );
             }
         }
-    }
-
-    /**
-     * Increment the "created" stat.
-     *
-     * @return void
-     */
-    private function created()
-    {
-        $this->incrementStats('created');
-    }
-
-    /**
-     * Increment the "updated" stat.
-     *
-     * @return void
-     */
-    private function updated()
-    {
-        $this->incrementStats('updated');
-    }
-
-    /**
-     * Increment the "deleted" stat.
-     *
-     * @return void
-     */
-    private function deleted()
-    {
-        $this->incrementStats('deleted');
     }
 
     /**
@@ -222,6 +183,27 @@ class Syncer
                 ];
             })
             ->toArray();
+    }
+
+    /**
+     * Create a remote user from the response.
+     *
+     * @param array $user
+     *
+     * @return User
+     */
+    public function createRemoteUserFromResponse(array $user)
+    {
+        return new RemoteUser(
+            array_get($user, 'id'),
+            array_get($user, 'name'),
+            array_get($user, 'email'),
+            array_get($user, 'password'),
+            array_get($user, 'updated_at'),
+            array_get($user, 'created_at'),
+            array_get($user, 'country'),
+            array_get($user, 'action')
+        );
     }
 
     /**
@@ -264,6 +246,16 @@ class Syncer
     public function getRemoteStats(): array
     {
         return $this->remoteStats;
+    }
+
+    /**
+     * Set remote users.
+     *
+     * @param Collection|RemoteUser[] $foreigners
+     */
+    public function setForeigners($foreigners): void
+    {
+        $this->foreigners = $foreigners;
     }
 
     /**

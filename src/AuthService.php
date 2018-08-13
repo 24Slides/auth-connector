@@ -229,11 +229,11 @@ class AuthService
      * @param string|null $name
      * @param string|null $email
      * @param string|null $password Raw password, in case if changed
-     * @param string $country Two-letter country code.
+     * @param string|null $country Two-letter country code.
      *
      * @return array|false
      */
-    public function update(int $id, ?string $name, ?string $email, ?string $password, string $country)
+    public function update(int $id, ?string $name, ?string $email, ?string $password, ?string $country)
     {
         if($this->disabled()) {
             return false;
