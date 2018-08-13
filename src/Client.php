@@ -340,7 +340,7 @@ class Client
      */
     private function parseResponse(ResponseInterface $response): array
     {
-        \Illuminate\Support\Facades\Log::debug("[Connector] Got a response. Status: ", $response->getStatusCode());
+        \Illuminate\Support\Facades\Log::debug("[Connector] Got a response. Status: " . $response->getStatusCode());
 
         $decoded = (string) $response->getBody();
         $decoded = json_decode($decoded, true);
