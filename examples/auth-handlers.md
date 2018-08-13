@@ -69,7 +69,7 @@ class AuthHandlers
         $attributes = $request->only('name', 'email');
 
         if($user->update($attributes)) {
-            $this->authService->update($user->id, $user->name, $user->email, null);
+            $this->authService->update($user->remote_id, $user->name, $user->email, null);
         }
 
         return $user;
@@ -86,7 +86,7 @@ class AuthHandlers
     public function updatePassword(User $user, string $password)
     {
         if($user->update(['password' => \Hash::make($password)])) {
-            $this->authService->update($user->id, null, null, $password);
+            $this->authService->update($user->remote_id, null, null, $password);
         }
 
         return $user;
