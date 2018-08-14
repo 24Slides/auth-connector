@@ -3,6 +3,7 @@
 namespace Slides\Connector\Auth\Webhooks;
 
 use Slides\Connector\Auth\Exceptions\WebhookException;
+use Slides\Connector\Auth\Exceptions\WebhookValidationException;
 
 /**
  * Class Dispatcher
@@ -26,7 +27,17 @@ class Dispatcher
         }
 
         $webhook = $this->instantiate($key, $payload);
-        $webhook->handle();
+
+        if(!$webhook->validate()) {
+            throw new WebhookValidationException($webhook->getValidator());
+        }
+
+        try {
+            $webhook->handle();
+        }
+        catch(\Exception $e) {
+            throw new WebhookException(get_class($webhook) . ': ' . $e->getMessage());
+        }
     }
 
     /**
@@ -35,7 +46,7 @@ class Dispatcher
      * @param string $key
      * @param array $payload
      *
-     * @return mixed
+     * @return Webhook
      */
     private function instantiate(string $key, array $payload)
     {

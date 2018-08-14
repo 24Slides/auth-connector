@@ -3,7 +3,6 @@
 namespace Slides\Connector\Auth\Webhooks;
 
 use Slides\Connector\Auth\Sync\Syncer;
-use Slides\Connector\Auth\Exceptions\WebhookValidationException;
 
 /**
  * Class UserSyncWebhook
@@ -13,19 +12,33 @@ use Slides\Connector\Auth\Exceptions\WebhookValidationException;
 class UserSyncWebhook extends Webhook
 {
     /**
+     * The payload validation rules.
+     *
+     * @return array
+     */
+    protected function rules(): array
+    {
+        return [
+            'user' => 'required|array',
+            'user.id' => 'required|int',
+            'user.name' => 'string',
+            'user.email' => 'required|email',
+            'user.country' => 'required|string|size:2',
+            'user.password' => 'string',
+            'user.created_at' => 'required|string',
+            'user.updated_at' => 'string',
+            'user.action' => 'required|string',
+        ];
+    }
+    
+    /**
      * Handle the incoming request.
      *
      * @return void
-     *
-     * @throws WebhookValidationException
      */
     public function handle()
     {
         $user = array_get($this->payload, 'user');
-
-        if(!is_array($user)) {
-            throw new WebhookValidationException('payload.user is required');
-        }
 
         $syncer = new Syncer(null, [Syncer::MODE_PASSWORDS]);
         $syncer->setForeigners(collect([

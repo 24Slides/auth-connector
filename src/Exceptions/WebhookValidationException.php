@@ -7,6 +7,6 @@ namespace Slides\Connector\Auth\Exceptions;
  *
  * @package Slides\Connector\Auth\Exceptions
  */
-class WebhookValidationException extends WebhookException
+class WebhookValidationException extends \Illuminate\Validation\ValidationException
 {
 }
