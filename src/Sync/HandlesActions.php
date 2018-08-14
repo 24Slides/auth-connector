@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth\Sync;
 
+use Slides\Connector\Auth\Sync\Syncable as LocalUser;
 use Slides\Connector\Auth\Sync\User as RemoteUser;
 use Illuminate\Support\Facades\Auth;
 use Slides\Connector\Auth\AuthService;
@@ -69,7 +70,7 @@ trait HandlesActions
 
         // If a local user was updated later than remote one, we should skip the process
         // Since we have a latest one
-        if($local->getAuthIdentifier()->updated_at->greaterThanOrEqualTo($remote->getUpdated())) {
+        if($this->localNewerThanRemote($local, $remote)) {
             return;
         }
 
@@ -102,5 +103,26 @@ trait HandlesActions
         $this->authService->handle(AuthService::HANDLER_USER_SYNC_DELETE, ['remote' => $remote, 'local' => $local]);
 
         $this->incrementStats('deleted');
+    }
+
+    /**
+     * Check whether remote user has updated earlier than local one.
+     *
+     * @param Syncable|\Illuminate\Contracts\Auth\Authenticatable $local
+     * @param User $remote
+     *
+     * @return bool
+     */
+    private function localNewerThanRemote(LocalUser $local, RemoteUser $remote)
+    {
+        if(!$remoteUpdated = $remote->getUpdated()) {
+            return false;
+        }
+
+        if(!$localUpdate = $local->retrieveUpdatedAt()) {
+            return false;
+        }
+
+        return $remoteUpdated->lessThan($localUpdate);
     }
 }
