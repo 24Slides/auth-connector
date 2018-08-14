@@ -43,6 +43,7 @@ trait HandlesActions
      */
     protected function actionCreate(RemoteUser $remote)
     {
+        // If a user with the same email was found, we need to skip the process
         if(Auth::getProvider()->retrieveByCredentials(['email' => $remote->getEmail()])) {
             return;
         }
@@ -61,7 +62,14 @@ trait HandlesActions
      */
     protected function actionUpdate(RemoteUser $remote)
     {
+        // If a user with the same email cannot be found, we should skip the process
         if(!$local = Auth::getProvider()->retrieveByCredentials(['email' => $remote->getEmail()])) {
+            return;
+        }
+
+        // If a local user was updated later than remote one, we should skip the process
+        // Since we have a latest one
+        if($local->getAuthIdentifier()->updated_at->greaterThanOrEqualTo($remote->getUpdated())) {
             return;
         }
 
