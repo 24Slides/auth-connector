@@ -18,6 +18,11 @@ class Syncer
     use HandlesActions;
 
     /**
+     * Number of users which can be sent per request
+     */
+    const USERS_PER_REQUEST = 500;
+
+    /**
      * Synchronization modes.
      *
      * `passwords` — allows updating passwords locally and remotely.
@@ -82,6 +87,20 @@ class Syncer
     ];
 
     /**
+     * Output messages.
+     *
+     * @var array
+     */
+    protected $output = [];
+
+    /**
+     * The callback called on adding a message to the output.
+     *
+     * @var \Closure
+     */
+    protected $outputCallback;
+
+    /**
      * Syncer constructor.
      *
      * @param LocalUser[]|Collection|null $locals
@@ -91,6 +110,7 @@ class Syncer
     public function __construct(Collection $locals = null, array $modes = [], Client $client = null)
     {
         $this->locals = $locals ?? collect();
+        $this->foreigners = collect();
         $this->modes = $modes;
         $this->client = $client ?? new Client();
         $this->authService = app('authService');
@@ -103,12 +123,23 @@ class Syncer
      */
     public function sync()
     {
-        $response = $this->client->request('sync', [
-            'users' => $this->formatLocals(),
-            'modes' => $this->modes
-        ]);
+        $iterator = new UserGroupsIterator($this->locals, static::USERS_PER_REQUEST);
 
-        $this->parseResponse($response);
+        $this->outputMessage('Total requests: ' . $iterator->requestsCount());
+
+        /** @var LocalUser[]|Collection $users */
+        foreach ($iterator as $users) {
+            $this->outputMessage('Sending a request with bunch of ' . $users->count() . ' users');
+
+            $response = $this->client->request('sync', [
+                'users' => $this->formatLocals($users),
+                'modes' => $this->modes
+            ]);
+
+            $this->parseResponse($response);
+        }
+
+        $this->outputMessage("Applying {$this->foreigners->count()} remote changes locally");
 
         $this->apply();
     }
@@ -124,8 +155,16 @@ class Syncer
             return $this->createRemoteUserFromResponse($user);
         }, array_get($response, 'difference'));
 
-        $this->remoteStats = array_get($response, 'stats');
-        $this->foreigners = collect($foreigners);
+        $this->mergeRemoteStats($remoteStats = array_get($response, 'stats'));
+
+        $this->outputMessage(
+            'Remote affection:'
+            . ' created ' . $remoteStats['created']
+            . ', updated ' . $remoteStats['updated']
+            . ', deleted ' . $remoteStats['deleted']
+        );
+
+        $this->foreigners = $this->foreigners->merge($foreigners);
     }
 
     /**
@@ -151,25 +190,15 @@ class Syncer
     }
 
     /**
-     * Increment a local stats value.
-     *
-     * @param string $key
-     */
-    private function incrementStats(string $key)
-    {
-        $value = array_get($this->localStats, $key, 0);
-
-        $this->localStats[$key] = ++$value;
-    }
-
-    /**
      * Format local users for a request payload.
+     *
+     * @param Collection $locals
      *
      * @return array
      */
-    private function formatLocals()
+    private function formatLocals(Collection $locals)
     {
-        return $this->locals
+        return $locals
             ->map(function(Syncable $user) {
                 return [
                     'id' => $user->retrieveId(),
@@ -268,5 +297,57 @@ class Syncer
         return \Illuminate\Support\Facades\Auth::getProvider()->createModel()
             ->newQuery()
             ->get();
+    }
+
+    /**
+     * Merge the remote stats.
+     *
+     * @param array $stats
+     */
+    private function mergeRemoteStats(array $stats)
+    {
+        $this->remoteStats['created'] += $stats['created'];
+        $this->remoteStats['updated'] += $stats['updated'];
+        $this->remoteStats['deleted'] += $stats['deleted'];
+    }
+
+    /**
+     * Add a message to the output
+     *
+     * @param string $message
+     *
+     * @return void
+     */
+    private function outputMessage(string $message)
+    {
+        $output[] = $message;
+
+        if($this->outputCallback instanceof \Closure) {
+            call_user_func($this->outputCallback, $message);
+        }
+    }
+
+    /**
+     * Set a callback which should be called on adding output message.
+     *
+     * @param \Closure $outputCallback
+     *
+     * @return void
+     */
+    public function setOutputCallback(\Closure $outputCallback): void
+    {
+        $this->outputCallback = $outputCallback;
+    }
+
+    /**
+     * Increment a local stats value.
+     *
+     * @param string $key
+     */
+    protected function incrementStats(string $key)
+    {
+        $value = array_get($this->localStats, $key, 0);
+
+        $this->localStats[$key] = ++$value;
     }
 }

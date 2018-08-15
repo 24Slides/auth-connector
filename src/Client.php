@@ -347,7 +347,7 @@ class Client
 
         $this->formatted = $decoded;
 
-        \Illuminate\Support\Facades\Log::debug(null, $decoded);
+        \Illuminate\Support\Facades\Log::debug(null, $decoded ?? []);
 
         if($this->success()) {
            return $this->formatted;

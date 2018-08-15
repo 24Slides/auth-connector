@@ -77,6 +77,10 @@ class SyncUsers extends \Illuminate\Console\Command
             return;
         }
 
+        $syncer->setOutputCallback(function(string $message) {
+            $this->info('[Syncer] ' . $message);
+        });
+
         $duration = $this->measure(function() use ($syncer) {
             $syncer->sync();
         });
