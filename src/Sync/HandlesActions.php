@@ -115,6 +115,10 @@ trait HandlesActions
      */
     private function localNewerThanRemote(LocalUser $local, RemoteUser $remote)
     {
+        if(!$local->retrieveRemoteId()) {
+            return false;
+        }
+
         if(!$remoteUpdated = $remote->getUpdated()) {
             return false;
         }
