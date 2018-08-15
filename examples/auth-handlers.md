@@ -248,7 +248,7 @@ class AuthHandlers
     }
 
     /**
-     * Send a link with password resetting token.
+     * Reset a password by the token.
      *
      * @param SessionGuard $guard
      * @param string $email
@@ -258,8 +258,6 @@ class AuthHandlers
      */
     public function fallbackResetPassword(SessionGuard $guard, string $token, string $email, string $password, string $confirmation)
     {
-        $email = decrypt($email);
-
         $credentials = compact('email', 'token', 'password');
         $credentials['password_confirmation'] = $confirmation;
 
