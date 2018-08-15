@@ -26,8 +26,10 @@ class Syncer
      * Synchronization modes.
      *
      * `passwords` — allows updating passwords locally and remotely.
+     * `users` — allows syncing specific users only.
      */
     const MODE_PASSWORDS = 'passwords';
+    const MODE_USERS = 'users';
 
     /**
      * The authentication service.

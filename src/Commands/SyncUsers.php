@@ -3,11 +3,9 @@
 namespace Slides\Connector\Auth\Commands;
 
 use Slides\Connector\Auth\AuthService;
-use Slides\Connector\Auth\Sync\Syncable;
 use Slides\Connector\Auth\Client as AuthClient;
-use Slides\Connector\Auth\Sync\User as SyncUser;
-use Illuminate\Support\Facades\Auth;
 use Slides\Connector\Auth\Sync\Syncer;
+use Slides\Connector\Auth\Helpers\ConsoleHelper;
 
 /**
  * Class SyncUsers
@@ -22,7 +20,8 @@ class SyncUsers extends \Illuminate\Console\Command
      * @var string
      */
     protected $signature = 'connector:sync-users
-                            {--passwords : Allow syncing passwords (can rewrite remotely and locally) }';
+                            {--passwords : Allow syncing passwords (can rewrite remotely and locally) }
+                            {--users=    : Sync the specific users }';
 
     /**
      * The console command description.
@@ -40,6 +39,13 @@ class SyncUsers extends \Illuminate\Console\Command
      * @var AuthService
      */
     protected $authService;
+
+    /**
+     * The list of enabled modes.
+     *
+     * @var string[]
+     */
+    protected $modes;
 
     /**
      * SyncUsers constructor.
@@ -60,14 +66,11 @@ class SyncUsers extends \Illuminate\Console\Command
      */
     public function handle()
     {
-        $syncer = new Syncer(
-            $locals = Syncer::retrieveLocals(),
-            $modes = $this->retrieveModes()
-        );
-
-        if(count($modes) > 0) {
-            $this->output->block('Passed modes: ' . implode($modes, ', '), null, 'comment');
+        if(count($this->modes = $this->retrieveModes())) {
+            $this->output->block('Passed modes: ' . implode($this->modes, ', '), null, 'comment');
         }
+
+        $syncer = new Syncer($locals = $this->syncingUsers(), $this->modes);
 
         if($locals->isEmpty()) {
             $this->info('No local users found.');
@@ -111,10 +114,23 @@ class SyncUsers extends \Illuminate\Console\Command
     protected function retrieveModes(): array
     {
         $modes = [
-            'passwords' => $this->option('passwords')
+            'passwords' => $this->option('passwords'),
+            'users' => $this->hasOption('users'),
         ];
 
         return array_keys(array_filter($modes));
+    }
+
+    /**
+     * Checks whether user has a mode.
+     *
+     * @param string $mode
+     *
+     * @return bool
+     */
+    protected function hasMode(string $mode): bool
+    {
+        return in_array($mode, $this->modes);
     }
 
     /**
@@ -133,5 +149,26 @@ class SyncUsers extends \Illuminate\Console\Command
         $end = microtime(true);
 
         return round($end - $start, 2);
+    }
+
+    /**
+     * Retrieve users to sync.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    private function syncingUsers()
+    {
+        if(!$this->hasMode(Syncer::MODE_USERS)) {
+            return Syncer::retrieveLocals();
+        }
+
+        if(!count($ids = ConsoleHelper::stringToArray($this->option('users')))) {
+            throw new \InvalidArgumentException('No users passed');
+        }
+
+        return \Illuminate\Support\Facades\Auth::getProvider()->createModel()
+            ->newQuery()
+            ->whereIn('id', $ids)
+            ->get();
     }
 }
