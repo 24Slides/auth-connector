@@ -144,7 +144,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         });
 
         // Register the fallback driver if service is disabled
-        if(!$this->enabled()) {
+        if(!$this->app->runningInConsole() && !$this->enabled()) {
             $this->app['auth']->shouldUse('fallback');
         }
     }

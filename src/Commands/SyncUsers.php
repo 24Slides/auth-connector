@@ -22,7 +22,7 @@ class SyncUsers extends \Illuminate\Console\Command
      * @var string
      */
     protected $signature = 'connector:sync-users
-                            {--passwords= : Allow syncing passwords (can rewrite remotely and locally) }';
+                            {--passwords : Allow syncing passwords (can rewrite remotely and locally) }';
 
     /**
      * The console command description.
@@ -40,13 +40,6 @@ class SyncUsers extends \Illuminate\Console\Command
      * @var AuthService
      */
     protected $authService;
-
-    /**
-     * Whether remote and local passwords can be overwritten.
-     *
-     * @var bool
-     */
-    private $passwords;
 
     /**
      * SyncUsers constructor.
@@ -114,14 +107,14 @@ class SyncUsers extends \Illuminate\Console\Command
     protected function retrieveModes(): array
     {
         $modes = [
-            'passwords' => $this->hasOption('passwords')
+            'passwords' => $this->option('passwords')
         ];
 
         return array_keys(array_filter($modes));
     }
 
     /**
-     * Measure an execution time of the callback
+     * Measure an execution time of the callback.
      *
      * @param \Closure $callback
      *
