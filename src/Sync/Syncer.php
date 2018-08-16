@@ -15,7 +15,7 @@ use Slides\Connector\Auth\AuthService;
  */
 class Syncer
 {
-    use HandlesActions;
+    use HandlesActions, ExportsUsers;
 
     /**
      * Number of users which can be sent per request
