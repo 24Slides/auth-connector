@@ -53,8 +53,19 @@ class SyncExport extends \Illuminate\Console\Command
             $syncer->export($this->filePath());
         });
 
-        $this->info('Dump has been saved as ' . $this->filePath());
-        $this->info('Decryption key: ' . $syncer->getEncryptionKey());
+        $this->info('Dump has been saved to ' . $this->filePath());
+        $this->info('Encryption key: ' . $syncer->getEncryptionKey());
+
+        $filename = basename($this->filePath());
+
+        $this->output->note(
+            'This encryption key is unique for each dump and supposed to be used safely.'
+            . PHP_EOL . 'It\'s bound to this service and cannot be used on other tenants.'
+        );
+
+        $this->output->block('To sync the dump, run the following command on Authentication Service:');
+        $this->output->block("php artisan sync:import-dump {$filename} --key \"{$syncer->getEncryptionKey()}\"", null, 'fg=cyan;bg=default');
+
         $this->info("Finished in {$duration}s.");
     }
 
