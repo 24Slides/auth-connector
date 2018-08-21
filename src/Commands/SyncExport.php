@@ -2,13 +2,11 @@
 
 namespace Slides\Connector\Auth\Commands;
 
-use Slides\Connector\Auth\AuthService;
-use Slides\Connector\Auth\Client as AuthClient;
 use Slides\Connector\Auth\Sync\Syncer;
 use Slides\Connector\Auth\Helpers\ConsoleHelper;
 
 /**
- * Class ImportUsers
+ * Class SyncExport
  *
  * @package Slides\Connector\Auth\Commands
  */
@@ -29,35 +27,6 @@ class SyncExport extends \Illuminate\Console\Command
      * @var string
      */
     protected $description = 'Export local users to sync users remotely (can be imported only remotely)';
-
-    /**
-     * @var AuthClient
-     */
-    protected $authClient;
-
-    /**
-     * @var AuthService
-     */
-    protected $authService;
-
-    /**
-     * The list of enabled modes.
-     *
-     * @var string[]
-     */
-    protected $modes;
-
-    /**
-     * SyncUsers constructor.
-     *
-     * @param AuthService $authService
-     */
-    public function __construct(AuthService $authService)
-    {
-        $this->authService = $authService;
-
-        parent::__construct();
-    }
 
     /**
      * Execute the console command.
@@ -87,33 +56,6 @@ class SyncExport extends \Illuminate\Console\Command
         $this->info('Dump has been saved as ' . $this->filePath());
         $this->info('Decryption key: ' . $syncer->getEncryptionKey());
         $this->info("Finished in {$duration}s.");
-    }
-
-    /**
-     * Format the modes.
-     *
-     * @return array
-     */
-    protected function retrieveModes(): array
-    {
-        $modes = [
-            'passwords' => $this->option('passwords'),
-            'users' => $this->hasOption('users'),
-        ];
-
-        return array_keys(array_filter($modes));
-    }
-
-    /**
-     * Checks whether user has a mode.
-     *
-     * @param string $mode
-     *
-     * @return bool
-     */
-    protected function hasMode(string $mode): bool
-    {
-        return in_array($mode, $this->modes);
     }
 
     /**

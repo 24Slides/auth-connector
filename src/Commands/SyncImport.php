@@ -3,7 +3,6 @@
 namespace Slides\Connector\Auth\Commands;
 
 use Slides\Connector\Auth\Sync\Syncer;
-use Slides\Connector\Auth\Helpers\ConsoleHelper;
 
 /**
  * Class SyncImport
