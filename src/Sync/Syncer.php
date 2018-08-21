@@ -15,7 +15,9 @@ use Slides\Connector\Auth\AuthService;
  */
 class Syncer
 {
-    use HandlesActions, ExportsUsers;
+    use HandlesActions,
+        ExportsUsers,
+        ImportsUsers;
 
     /**
      * Number of users which can be sent per request
@@ -284,9 +286,19 @@ class Syncer
      *
      * @param Collection|RemoteUser[] $foreigners
      */
-    public function setForeigners($foreigners): void
+    public function setForeigners(Collection $foreigners): void
     {
         $this->foreigners = $foreigners;
+    }
+
+    /**
+     * Get number of foreign users.
+     *
+     * @return int
+     */
+    public function getForeignersCount(): int
+    {
+        return $this->foreigners->count();
     }
 
     /**
