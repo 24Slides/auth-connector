@@ -13,15 +13,6 @@ class UserSyncWebhookTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertTrue($webhook->validate());
     }
 
-    public function testHandle()
-    {
-        dd($this->app['auth']);
-
-        $webhook = new UserSyncWebhook($this->payload());
-
-        $webhook->handle();
-    }
-
     /**
      * The request payload.
      *
