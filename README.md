@@ -25,6 +25,15 @@ SERVICE_AUTH_PUBLIC=
 SERVICE_AUTH_SECRET=
 ```
 - Install a dependency via Composer: `composer require 24slides/auth-connector`
+- Add a package provider to `config/app.php`:
+```php
+'providers' => [
+    ...
+    Slides\Connector\Auth\ServiceProvider::class,
+```
+
+> The provider must be defined after `AuthServiceProvider`.
+
 - Define auth guards at `config/auth.php`:
 
 ```php
