@@ -37,7 +37,7 @@ class SyncImport extends \Illuminate\Console\Command
             throw new \InvalidArgumentException('Encryption key must be passed.');
         }
 
-        $syncer = new Syncer();
+        $syncer = new Syncer(null, [Syncer::MODE_PASSWORDS]);
 
         $duration = $this->measure(function() use ($syncer, $key) {
             $this->info('Importing the dump...');
