@@ -115,7 +115,7 @@ class SyncUsers extends \Illuminate\Console\Command
     {
         $modes = [
             'passwords' => $this->option('passwords'),
-            'users' => $this->hasOption('users'),
+            'users' => !empty($this->option('users')),
         ];
 
         return array_keys(array_filter($modes));
