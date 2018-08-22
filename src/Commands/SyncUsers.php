@@ -76,7 +76,7 @@ class SyncUsers extends \Illuminate\Console\Command
             $this->info('No local users found.');
         }
 
-        if(!$this->confirm('There are ' . $locals->count() . ' local user(s) to sync. Continue?')) {
+        if(!$this->confirm('There are ' . $locals->count() . ' local user(s) to sync. Continue?', $this->option('no-interaction'))) {
             return;
         }
 
