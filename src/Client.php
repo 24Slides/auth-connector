@@ -202,10 +202,13 @@ class Client
      */
     protected function sync(array $users, array $modes): ResponseInterface
     {
-        return $this->client->post('sync', ['json' => [
-            'users' => $users,
-            'modes' => $modes
-        ]]);
+        return $this->client->post('sync', [
+            'json' => [
+                'users' => $users,
+                'modes' => $modes
+            ],
+            'timeout' => 0
+        ]);
     }
 
     /**

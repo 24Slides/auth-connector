@@ -140,6 +140,8 @@ class Syncer
                 'modes' => $this->modes
             ]);
 
+            $this->outputMessage('Parsing a response...');
+
             $this->parseResponse($response);
         }
 
