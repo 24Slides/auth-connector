@@ -19,7 +19,7 @@ class SyncExport extends \Illuminate\Console\Command
      */
     protected $signature = 'connector:sync-export
                             {--path=  : Allow syncing passwords (can rewrite remotely and locally) }
-                            {--users= : Import the specific users }';
+                            {--users= : Export the specific users }';
 
     /**
      * The console command description.
@@ -49,14 +49,16 @@ class SyncExport extends \Illuminate\Console\Command
             $this->info('[Syncer] ' . $message);
         });
 
-        $duration = $this->measure(function() use ($syncer) {
-            $syncer->export($this->filePath());
+        $filePath = $this->filePath();
+
+        $duration = $this->measure(function() use ($syncer, $filePath) {
+            $syncer->export($filePath);
         });
 
-        $this->info('Dump has been saved to ' . $this->filePath());
+        $this->info('Dump has been saved to ' . $filePath);
         $this->info('Encryption key: ' . $syncer->getEncryptionKey());
 
-        $filename = basename($this->filePath());
+        $filename = basename($filePath);
 
         $this->output->note(
             'This encryption key is unique for each dump and supposed to be used safely.'
