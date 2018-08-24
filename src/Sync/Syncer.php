@@ -179,6 +179,13 @@ class Syncer
     public function apply()
     {
         foreach ($this->foreigners as $foreigner) {
+            $this->outputMessage(
+                'Handling action '
+                    . $foreigner->getRemoteAction()
+                    . ' of ' . $foreigner->getName()
+                    . ' (' . $foreigner->getEmail() . ')'
+            );
+
             try {
                 $this->handleAction(
                     $foreigner,

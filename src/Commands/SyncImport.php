@@ -37,7 +37,12 @@ class SyncImport extends \Illuminate\Console\Command
             throw new \InvalidArgumentException('Encryption key must be passed.');
         }
 
+        $this->flushListeners();
+
         $syncer = new Syncer(null, [Syncer::MODE_PASSWORDS]);
+        $syncer->setOutputCallback(function(string $message) {
+            $this->info('[Syncer] ' . $message);
+        });
 
         $duration = $this->measure(function() use ($syncer, $key) {
             $this->info('Importing the dump...');
@@ -68,5 +73,17 @@ class SyncImport extends \Illuminate\Console\Command
         $end = microtime(true);
 
         return round($end - $start, 2);
+    }
+
+    /**
+     * Flush models event listeners to speed-up the proces.
+     *
+     * @return void
+     */
+    protected function flushListeners()
+    {
+        \App\Http\Models\User::flushEventListeners();
+        \App\Http\Models\CustomerProfile::flushEventListeners();
+        \App\Modules\Billing\Models\Account::flushEventListeners();
     }
 }
