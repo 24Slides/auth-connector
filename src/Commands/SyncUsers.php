@@ -56,6 +56,8 @@ class SyncUsers extends \Illuminate\Console\Command
     {
         $this->authService = $authService;
 
+        set_time_limit(0);
+
         parent::__construct();
     }
 
