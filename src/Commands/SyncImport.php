@@ -76,14 +76,22 @@ class SyncImport extends \Illuminate\Console\Command
     }
 
     /**
-     * Flush models event listeners to speed-up the proces.
+     * Flush models event listeners to speed-up the process.
      *
      * @return void
      */
     protected function flushListeners()
     {
-        \App\Http\Models\User::flushEventListeners();
-        \App\Http\Models\CustomerProfile::flushEventListeners();
-        \App\Modules\Billing\Models\Account::flushEventListeners();
+        if(class_exists(\App\Http\Models\User::class)) {
+            \App\Http\Models\User::flushEventListeners();
+        }
+
+        if(class_exists(\App\Http\Models\CustomerProfile::class)) {
+            \App\Http\Models\CustomerProfile::flushEventListeners();
+        }
+
+        if(class_exists(\App\Modules\Billing\Models\Account::class)) {
+            \App\Modules\Billing\Models\Account::flushEventListeners();
+        }
     }
 }
