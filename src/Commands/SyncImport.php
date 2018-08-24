@@ -82,15 +82,15 @@ class SyncImport extends \Illuminate\Console\Command
      */
     protected function flushListeners()
     {
-        if(class_exists(\App\Http\Models\User::class)) {
+        if(class_exists('\App\Http\Models\User')) {
             \App\Http\Models\User::flushEventListeners();
         }
 
-        if(class_exists(\App\Http\Models\CustomerProfile::class)) {
+        if(class_exists('App\Http\Models\CustomerProfile')) {
             \App\Http\Models\CustomerProfile::flushEventListeners();
         }
 
-        if(class_exists(\App\Modules\Billing\Models\Account::class)) {
+        if(class_exists('App\Modules\Billing\Models\Account::class')) {
             \App\Modules\Billing\Models\Account::flushEventListeners();
         }
     }
