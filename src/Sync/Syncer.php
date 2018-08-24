@@ -22,7 +22,7 @@ class Syncer
     /**
      * Number of users which can be sent per request
      */
-    const USERS_PER_REQUEST = 500;
+    const USERS_PER_REQUEST = 5000;
 
     /**
      * Synchronization modes.

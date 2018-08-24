@@ -45,7 +45,7 @@ trait HandlesActions
     protected function actionCreate(RemoteUser $remote)
     {
         // If a user with the same email was found, we need to skip the process
-        if(Auth::getProvider()->retrieveByCredentials(['email' => $remote->getEmail()])) {
+        if(Auth::getProvider()->retrieveByCredentials(['email' => strtolower($remote->getEmail())])) {
             return;
         }
 
