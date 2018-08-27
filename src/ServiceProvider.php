@@ -28,6 +28,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->loadPublishes();
         $this->loadConsoleCommands();
         $this->loadGuards();
+        $this->loadRoutes();
     }
 
     /**
@@ -69,7 +70,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $this->commands([
             \Slides\Connector\Auth\Commands\MakeAuthHandlers::class,
-            \Slides\Connector\Auth\Commands\SyncUsers::class
+            \Slides\Connector\Auth\Commands\SyncUsers::class,
+            \Slides\Connector\Auth\Commands\SyncExport::class,
+            \Slides\Connector\Auth\Commands\SyncImport::class
         ]);
     }
 
@@ -94,6 +97,18 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
                 $this->app['auth']->guard('fallback')
             );
         }
+    }
+
+    /**
+     * Load routes.
+     *
+     * @return void
+     */
+    protected function loadRoutes()
+    {
+        $this->loadRoutesFrom(__DIR__ . '/Http/routes.php');
+
+        \Illuminate\Support\Facades\Route::getRoutes()->refreshNameLookups();
     }
 
     /**
@@ -131,7 +146,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         });
 
         // Register the fallback driver if service is disabled
-        if(!$this->enabled()) {
+        if(!$this->app->runningInConsole() && !$this->enabled()) {
             $this->app['auth']->shouldUse('fallback');
         }
     }

@@ -70,7 +70,7 @@ class AuthHandlers
         $success = User::update($attributes);
 
         if($success) {
-            $this->authService->update($user->id, $user->name, $user->email, null);
+            $this->authService->update($user->remote_id, $user->name, $user->email, null);
         }
 
         return $user;
@@ -90,7 +90,7 @@ class AuthHandlers
         $success = User::update(['password' => \Illuminate\Support\Facades\Hash::make($password)]);
 
         if($success) {
-            $this->authService->update($user->id, null, null, $password);
+            $this->authService->update($user->remote_id, null, null, $password);
         }
 
         return $user;

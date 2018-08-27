@@ -25,6 +25,15 @@ SERVICE_AUTH_PUBLIC=
 SERVICE_AUTH_SECRET=
 ```
 - Install a dependency via Composer: `composer require 24slides/auth-connector`
+- Add a package provider to `config/app.php`:
+```php
+'providers' => [
+    ...
+    Slides\Connector\Auth\ServiceProvider::class,
+```
+
+> The provider must be defined after `AuthServiceProvider`.
+
 - Define auth guards at `config/auth.php`:
 
 ```php
@@ -65,6 +74,34 @@ php artisan vendor:publish --provider Slides\Connector\Auth\ServiceProvider
 - Run the published migration: `php artisan migrate`
 
 > The migration adds `remote_id` column to your User model which is supposed to be an identificator of synced users.
+
+- Disable encryption for the auth cookie which identifies a user:
+
+**`app/Http/Middleware/EncryptCookies:`**
+```php
+/**
+ * The names of the cookies that should not be encrypted.
+ *
+ * @var array
+ */
+protected $except = [
+    'authKey'
+];
+```
+
+- Disable verifying CSRF token for incoming webhooks:
+
+**`app/Http/Middleware/VerifyCsrfToken:`**
+```php
+/**
+ * The URIs that should be excluded from CSRF verification.
+ *
+ * @var array
+ */
+protected $except = [
+    'connector/webhook/*'
+];
+```
 
 ### Syncing users
 

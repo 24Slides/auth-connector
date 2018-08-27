@@ -3,10 +3,10 @@
 namespace Slides\Connector\Auth\Commands;
 
 use Slides\Connector\Auth\AuthService;
-use Slides\Connector\Auth\Sync\Syncable;
 use Slides\Connector\Auth\Client as AuthClient;
-use Slides\Connector\Auth\Sync\User as SyncUser;
-use Illuminate\Support\Facades\Auth;
+use Slides\Connector\Auth\Sync\Syncer;
+use Slides\Connector\Auth\Helpers\ConsoleHelper;
+use Slides\Connector\Auth\Concerns\PassesModes;
 
 /**
  * Class SyncUsers
@@ -15,13 +15,16 @@ use Illuminate\Support\Facades\Auth;
  */
 class SyncUsers extends \Illuminate\Console\Command
 {
+    use PassesModes;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
     protected $signature = 'connector:sync-users
-                            {--passwords= : Allow syncing passwords (can rewrite remotely and locally) }';
+                            {--passwords : Allow syncing passwords (can rewrite remotely and locally) }
+                            {--users=    : Sync the specific users }';
 
     /**
      * The console command description.
@@ -39,13 +42,6 @@ class SyncUsers extends \Illuminate\Console\Command
      * @var AuthService
      */
     protected $authService;
-
-    /**
-     * Whether remote and local passwords can be overwritten.
-     *
-     * @var bool
-     */
-    private $passwords;
 
     /**
      * SyncUsers constructor.
@@ -66,220 +62,80 @@ class SyncUsers extends \Illuminate\Console\Command
      */
     public function handle()
     {
-        $this->passwords = $this->hasOption('passwords');
-        $this->authClient = new AuthClient();
+        $this->displayModes();
 
-        /** @var \Illuminate\Database\Eloquent\Collection $users */
-        $users = Auth::getProvider()->createModel()
-            ->newQuery()
-            ->get();
+        $syncer = new Syncer($locals = $this->syncingUsers(), $this->modes());
 
-        if($users->isEmpty()) {
-            $this->info('No users found.');
+        if($locals->isEmpty()) {
+            $this->info('No local users found.');
+        }
+
+        if(!$this->confirm('There are ' . $locals->count() . ' local user(s) to sync. Continue?', $this->option('no-interaction'))) {
             return;
         }
 
-        if(!$this->confirm('There are ' . $users->count() . ' users to sync. Continue?')) {
-            return;
-        }
+        $syncer->setOutputCallback(function(string $message) {
+            $this->info('[Syncer] ' . $message);
+        });
 
-        $response = $this->authClient->request('sync', [
-            'users' => $this->formatUsers($users),
-            'modes' => $this->formatModes()
-        ]);
+        $duration = $this->measure(function() use ($syncer) {
+            $syncer->sync();
+        });
 
-        $difference = $response['difference'];
-        $remoteStats = $response['stats'];
+        $this->writeStats('Remote changes', $syncer->getRemoteStats());
+        $this->writeStats('Local changes', $syncer->getLocalStats());
 
-        $this->writeStats('Remote affection', array_keys($remoteStats), array_values($remoteStats));
-
-        if(!count($difference)) {
-            $this->info('There are no changes to apply locally.');
-        }
-        else {
-            $this->info('Remote changes detected, applying...');
-
-            $localStats = $this->applyDifference($difference);
-
-            $this->writeStats('Local affection', array_keys($localStats), array_values($localStats));
-        }
+        $this->info("Finished in {$duration}s.");
     }
 
     /**
-     * Format users
-     *
-     * @param Syncable[]|\Illuminate\Database\Eloquent\Collection $users
-     *
-     * @return array
-     */
-    protected function formatUsers($users): array
-    {
-        return $users
-            ->map(function(Syncable $user) {
-                return [
-                    'id' => $user->retrieveId(),
-                    'remoteId' => $user->retrieveRemoteId(),
-                    'name' => $user->retrieveName(),
-                    'email' => $user->retrieveEmail(),
-                    'password' => $user->retrievePassword(),
-                    'country' => $user->retrieveCountry(),
-                    'created_at' => $user->retrieveCreatedAt()->toDateTimeString(),
-                    'updated_at' => $user->retrieveUpdatedAt()->toDateTimeString()
-                ];
-            })
-            ->toArray();
-    }
-
-    /**
-     * Apply the difference
-     *
-     * @param array $users
-     *
-     * @return array
-     */
-    protected function applyDifference(array $users): array
-    {
-        $stats = ['created' => 0, 'updated' => 0, 'deleted' => 0];
-
-        foreach ($this->loadUsers($users) as $user) {
-            switch ($user->getRemoteAction()) {
-                case 'create': {
-                    $this->createUser($user);
-                    $stats['created']++;
-                    break;
-                }
-                case 'update': {
-                    $this->updateUser($user);
-                    $stats['updated']++;
-                    break;
-                }
-                case 'delete': {
-                    $this->deleteUser($user);
-                    $stats['deleted']++;
-                }
-            }
-        }
-
-        return $stats;
-    }
-
-    /**
-     * Write stats
+     * Output the stats.
      *
      * @param string $title
-     * @param array $keys
-     * @param array $values
+     * @param array $stats
      */
-    private function writeStats(string $title, array $keys, array $values)
+    private function writeStats(string $title, array $stats)
     {
         $this->output->title($title);
-        $this->output->table($keys, array($values));
+        $this->output->table(array_keys($stats), array(array_values($stats)));
     }
 
     /**
-     * Create a local user
+     * Measure an execution time of the callback.
      *
-     * @param SyncUser $user
+     * @param \Closure $callback
      *
-     * @throws
+     * @return float
      */
-    private function createUser(SyncUser $user)
+    public function measure(\Closure $callback)
     {
-        $email = $user->getEmail();
+        $start = microtime(true);
 
-        // If a user already exists, skip the process
-        if(Auth::getProvider()->retrieveByCredentials(['email' => $email])) {
-            $this->warn("User with email {$email} already exists, unable to create");
+        $callback();
 
-            return;
+        $end = microtime(true);
+
+        return round($end - $start, 2);
+    }
+
+    /**
+     * Retrieve users to sync.
+     *
+     * @return \Illuminate\Support\Collection
+     */
+    private function syncingUsers()
+    {
+        if(!$this->hasMode(Syncer::MODE_USERS)) {
+            return Syncer::retrieveLocals();
         }
 
-        $this->authService->handle(AuthService::HANDLER_USER_SYNC_CREATE, ['remote' => $user]);
-    }
-
-    /**
-     * Update a local user
-     *
-     * @param SyncUser $user
-     *
-     * @throws
-     */
-    private function updateUser(SyncUser $user)
-    {
-        $email = $user->getEmail();
-
-        // If a user doesn't exist, skip the process
-        if(!$model = Auth::getProvider()->retrieveByCredentials(['email' => $email])) {
-            $this->warn("User with email {$email} doesn't exist, unable to update");
-
-            return;
+        if(!count($ids = ConsoleHelper::stringToArray($this->option('users')))) {
+            throw new \InvalidArgumentException('No users passed');
         }
 
-        if(!$this->passwords) {
-            $user->resetPassword();
-        }
-
-        $this->authService->handle(AuthService::HANDLER_USER_SYNC_UPDATE, [
-            'remote' => $user,
-            'local' => $model
-        ]);
-    }
-
-    /**
-     * Delete a local user
-     *
-     * @param SyncUser $user
-     *
-     * @throws
-     */
-    private function deleteUser(SyncUser $user)
-    {
-        $email = $user->getEmail();
-
-        // If a user doesn't exist, skip the process
-        if(!$model = Auth::getProvider()->retrieveByCredentials(['email' => $email])) {
-            $this->warn("User with email {$email} doesn't exist, unable to delete");
-
-            return;
-        }
-
-        $this->authService->handle(AuthService::HANDLER_USER_SYNC_DELETE, ['remote' => $user, 'local' => $model]);
-    }
-
-    /**
-     * Parse user into entities
-     *
-     * @param array $users
-     *
-     * @return SyncUser[]|array
-     */
-    protected function loadUsers(array $users): array
-    {
-        return array_map(function(array $user) {
-            return new SyncUser(
-                array_get($user, 'id'),
-                array_get($user, 'name'),
-                array_get($user, 'email'),
-                array_get($user, 'password'),
-                array_get($user, 'updated_at'),
-                array_get($user, 'created_at'),
-                array_get($user, 'country'),
-                array_get($user, 'action')
-            );
-        }, $users);
-    }
-
-    /**
-     * Format the modes.
-     *
-     * @return array
-     */
-    protected function formatModes(): array
-    {
-        $modes = [
-            'passwords' => $this->passwords
-        ];
-
-        return array_keys(array_filter($modes));
+        return \Illuminate\Support\Facades\Auth::getProvider()->createModel()
+            ->newQuery()
+            ->whereIn('id', $ids)
+            ->get();
     }
 }
