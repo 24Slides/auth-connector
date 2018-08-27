@@ -135,7 +135,7 @@ class AuthHandlers
             'remote_id' => $remote->getRemoteId(),
             'email' => $remote->getEmail(),
             'name' => $remote->getName(),
-            'password' => $remote->getPassword(),
+            'password' => $remote->getPassword() ?? $local->getAuthPassword(),
             'updated_at' => $remote->getUpdated()
         ]);
     }
