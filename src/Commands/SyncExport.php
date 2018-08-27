@@ -4,6 +4,7 @@ namespace Slides\Connector\Auth\Commands;
 
 use Slides\Connector\Auth\Sync\Syncer;
 use Slides\Connector\Auth\Helpers\ConsoleHelper;
+use Slides\Connector\Auth\Concerns\PassesModes;
 
 /**
  * Class SyncExport
@@ -12,6 +13,8 @@ use Slides\Connector\Auth\Helpers\ConsoleHelper;
  */
 class SyncExport extends \Illuminate\Console\Command
 {
+    use PassesModes;
+
     /**
      * The name and signature of the console command.
      *
@@ -19,7 +22,8 @@ class SyncExport extends \Illuminate\Console\Command
      */
     protected $signature = 'connector:sync-export
                             {--path=  : Allow syncing passwords (can rewrite remotely and locally) }
-                            {--users= : Export the specific users }';
+                            {--users= : Export the specific users }
+                            {--passwords : Export the specific users }';
 
     /**
      * The console command description.
@@ -35,7 +39,9 @@ class SyncExport extends \Illuminate\Console\Command
      */
     public function handle()
     {
-        $syncer = new Syncer($locals = $this->syncingUsers());
+        $this->displayModes();
+
+        $syncer = new Syncer($locals = $this->syncingUsers(), $this->modes());
 
         if($locals->isEmpty()) {
             $this->info('No local users found.');

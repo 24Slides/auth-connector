@@ -82,6 +82,8 @@ trait ExportsUsers
      * Generate a random key for the dump.
      *
      * @return string
+     *
+     * @throws
      */
     private function generateRandomKey(): string
     {
@@ -103,12 +105,13 @@ trait ExportsUsers
     private function makeHeaders(string $payload): string
     {
         $headers = [
-            'public' => $this->credential('public')
+            'public' => $this->credential('public'),
+            'modes' => $this->modes
         ];
 
         $headers = serialize($headers);
         
-        return $headers . '/' . $payload;
+        return base64_encode($headers) . '/' . $payload;
     }
 
     /**

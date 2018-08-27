@@ -6,6 +6,7 @@ use Slides\Connector\Auth\AuthService;
 use Slides\Connector\Auth\Client as AuthClient;
 use Slides\Connector\Auth\Sync\Syncer;
 use Slides\Connector\Auth\Helpers\ConsoleHelper;
+use Slides\Connector\Auth\Concerns\PassesModes;
 
 /**
  * Class SyncUsers
@@ -14,6 +15,8 @@ use Slides\Connector\Auth\Helpers\ConsoleHelper;
  */
 class SyncUsers extends \Illuminate\Console\Command
 {
+    use PassesModes;
+
     /**
      * The name and signature of the console command.
      *
@@ -41,13 +44,6 @@ class SyncUsers extends \Illuminate\Console\Command
     protected $authService;
 
     /**
-     * The list of enabled modes.
-     *
-     * @var string[]
-     */
-    protected $modes;
-
-    /**
      * SyncUsers constructor.
      *
      * @param AuthService $authService
@@ -55,8 +51,6 @@ class SyncUsers extends \Illuminate\Console\Command
     public function __construct(AuthService $authService)
     {
         $this->authService = $authService;
-
-        set_time_limit(0);
 
         parent::__construct();
     }
@@ -68,11 +62,9 @@ class SyncUsers extends \Illuminate\Console\Command
      */
     public function handle()
     {
-        if(count($this->modes = $this->retrieveModes())) {
-            $this->output->block('Passed modes: ' . implode($this->modes, ', '), null, 'comment');
-        }
+        $this->displayModes();
 
-        $syncer = new Syncer($locals = $this->syncingUsers(), $this->modes);
+        $syncer = new Syncer($locals = $this->syncingUsers(), $this->modes());
 
         if($locals->isEmpty()) {
             $this->info('No local users found.');
@@ -106,33 +98,6 @@ class SyncUsers extends \Illuminate\Console\Command
     {
         $this->output->title($title);
         $this->output->table(array_keys($stats), array(array_values($stats)));
-    }
-
-    /**
-     * Format the modes.
-     *
-     * @return array
-     */
-    protected function retrieveModes(): array
-    {
-        $modes = [
-            'passwords' => $this->option('passwords'),
-            'users' => !empty($this->option('users')),
-        ];
-
-        return array_keys(array_filter($modes));
-    }
-
-    /**
-     * Checks whether user has a mode.
-     *
-     * @param string $mode
-     *
-     * @return bool
-     */
-    protected function hasMode(string $mode): bool
-    {
-        return in_array($mode, $this->modes);
     }
 
     /**
