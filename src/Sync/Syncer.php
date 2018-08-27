@@ -186,8 +186,7 @@ class Syncer
             $index++;
 
             $this->outputMessage(
-                "[$index of $count] . Handling action "
-                    . $foreigner->getRemoteAction()
+                "[$index of $count] Handling the action \"" . $foreigner->getRemoteAction() . '"'
                     . ' of ' . $foreigner->getName()
                     . ' (' . $foreigner->getEmail() . ')'
             );
@@ -253,7 +252,7 @@ class Syncer
     }
 
     /**
-     * Check whether a mode is enabled.
+     * Check whether a mode is passed.
      *
      * @param string $mode
      *
@@ -261,7 +260,17 @@ class Syncer
      */
     public function hasMode(string $mode): bool
     {
-        return in_array($mode, $this->modes);
+        return array_key_exists($mode, $this->modes);
+    }
+
+    /**
+     * Get passed modes.
+     *
+     * @return array
+     */
+    public function getModes(): array
+    {
+        return $this->modes;
     }
 
     /**

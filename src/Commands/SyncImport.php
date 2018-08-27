@@ -3,6 +3,7 @@
 namespace Slides\Connector\Auth\Commands;
 
 use Slides\Connector\Auth\Sync\Syncer;
+use Slides\Connector\Auth\Concerns\PassesModes;
 
 /**
  * Class SyncImport
@@ -11,13 +12,18 @@ use Slides\Connector\Auth\Sync\Syncer;
  */
 class SyncImport extends \Illuminate\Console\Command
 {
+    use PassesModes;
+
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
     protected $signature = 'connector:sync-import {filename}
-                            { --k|key= : Encryption key }';
+                            { --k|key=    : Encryption key }
+                            { --passwords : Allow syncing passwords (can rewrite remotely and locally) }
+                            { --users=    : Sync the specific users }
+                            { --no-modes  : Omit all modes }';
 
     /**
      * The console command description.
@@ -37,19 +43,30 @@ class SyncImport extends \Illuminate\Console\Command
             throw new \InvalidArgumentException('Encryption key must be passed.');
         }
 
+        $noModes = $this->option('no-modes');
+
         $this->flushListeners();
 
-        $syncer = new Syncer(null, [Syncer::MODE_PASSWORDS]);
+        $syncer = new Syncer(null, $noModes ? [] : $this->modes());
         $syncer->setOutputCallback(function(string $message) {
             $this->info('[Syncer] ' . $message);
         });
 
-        $duration = $this->measure(function() use ($syncer, $key) {
-            $this->info('Importing the dump...');
 
-            $syncer->import($this->argument('filename'), $key);
+        $this->info('Importing the dump...');
 
-            $this->info("Applying {$syncer->getForeignersCount()} changes...");
+        $syncer->import($this->argument('filename'), $key, $noModes ? false : !$this->hasModes());
+
+        $this->displayModes($syncer->getModes());
+
+        $changes = $syncer->getForeignersCount();
+
+        if(!$this->confirm('Apply ' . $changes . ' changes?', true)) {
+            return;
+        }
+
+        $duration = $this->measure(function() use ($syncer, $changes) {
+            $this->info("Applying {$changes} changes...");
 
             $syncer->apply();
         });

@@ -12,16 +12,24 @@ use Illuminate\Encryption\Encrypter;
 trait ImportsUsers
 {
     /**
+     * The import dump headers.
+     *
+     * @var array
+     */
+    protected $importHeaders;
+
+    /**
      * Export local users to a file in the compressed GZIP format.
      *
      * @param string $path
      * @param string $sharedKey
+     * @param bool $importModes Whether import modes from the dump.
      *
      * @return void
      */
-    public function import(string $path, string $sharedKey)
+    public function import(string $path, string $sharedKey, bool $importModes = true)
     {
-        $difference = $this->parseDump($path, $sharedKey);
+        $difference = $this->parseDump($path, $sharedKey, $importModes);
 
         $foreigners = array_map(function (array $user) {
             return $this->createRemoteUserFromResponse($user);
@@ -40,10 +48,11 @@ trait ImportsUsers
      *
      * @param string $filename
      * @param string $sharedKey
+     * @param bool $importModes Whether import modes from the dump.
      *
      * @return array
      */
-    private function parseDump(string $filename, string $sharedKey): array
+    private function parseDump(string $filename, string $sharedKey, bool $importModes): array
     {
         if(!file_exists($filename)) {
             throw new \InvalidArgumentException($filename . ' cannot be found');
@@ -52,6 +61,14 @@ trait ImportsUsers
         // Retrieve dump contents, it's encrypted and gzipped
         // We should handle it firstly
         $payload = file_get_contents($filename);
+
+        // Extract and parse headers which contain necessary information
+        // Then delete from a dump so we can proceed with decryption
+        $this->extractHeaders($payload);
+
+        if($importModes) {
+            $this->modes = array_get($this->importHeaders, 'modes', []);
+        }
 
         $encrypter = new Encrypter(
             $this->createDecryptionKey($sharedKey),
@@ -89,5 +106,24 @@ trait ImportsUsers
         $sign = hash('sha256', $this->credential('public') . $this->credential('secret'));
 
         return substr($sign, 0, 15);
+    }
+
+    /**
+     * Extract and parse headers from the dump.
+     *
+     * @param string $payload
+     *
+     * @return array
+     */
+    private function extractHeaders(string &$payload): array
+    {
+        $headers = unserialize(
+            base64_decode(strtok($payload, '/'))
+        );
+
+        // Remove header string from the payload
+        $payload = ltrim(strstr($payload, '/'), '/');
+
+        return $this->importHeaders = $headers;
     }
 }
