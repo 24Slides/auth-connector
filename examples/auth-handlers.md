@@ -69,7 +69,7 @@ class AuthHandlers
         $attributes = $request->only('name', 'email');
 
         if($user->update($attributes)) {
-            $this->authService->update($user->id, $user->name, $user->email, null);
+            $this->authService->update($user->remote_id, $user->name, $user->email, null);
         }
 
         return $user;
@@ -86,7 +86,7 @@ class AuthHandlers
     public function updatePassword(User $user, string $password)
     {
         if($user->update(['password' => \Hash::make($password)])) {
-            $this->authService->update($user->id, null, null, $password);
+            $this->authService->update($user->remote_id, null, null, $password);
         }
 
         return $user;
@@ -135,7 +135,7 @@ class AuthHandlers
             'remote_id' => $remote->getRemoteId(),
             'email' => $remote->getEmail(),
             'name' => $remote->getName(),
-            'password' => $remote->getPassword(),
+            'password' => $remote->getPassword() ?? $local->getAuthPassword(),
             'updated_at' => $remote->getUpdated()
         ]);
     }
@@ -248,7 +248,7 @@ class AuthHandlers
     }
 
     /**
-     * Send a link with password resetting token.
+     * Reset a password by the token.
      *
      * @param SessionGuard $guard
      * @param string $email
@@ -258,8 +258,6 @@ class AuthHandlers
      */
     public function fallbackResetPassword(SessionGuard $guard, string $token, string $email, string $password, string $confirmation)
     {
-        $email = decrypt($email);
-
         $credentials = compact('email', 'token', 'password');
         $credentials['password_confirmation'] = $confirmation;
 

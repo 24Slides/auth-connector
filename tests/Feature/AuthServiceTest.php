@@ -212,7 +212,7 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
             new Response(200, [], $expected = $this->stub(__DIR__ . '/responses/update-success.json'))
         ]);
 
-        $response = $service->update(1, 'Test', 'test@test.com', 'secret');
+        $response = $service->update(1, 'Test', 'test@test.com', 'secret', 'US');
 
         static::assertSame(json_decode($expected, true), $response);
     }
@@ -223,7 +223,7 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
             new Response(200, [], $this->stub(__DIR__ . '/responses/update-error.json'))
         ]);
 
-        $response = $service->update(0, 'Test', 'test@test.com', 'secret');
+        $response = $service->update(0, 'Test', 'test@test.com', 'secret', 'US');
 
         static::assertFalse($response);
     }

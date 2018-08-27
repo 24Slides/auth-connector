@@ -229,16 +229,17 @@ class AuthService
      * @param string|null $name
      * @param string|null $email
      * @param string|null $password Raw password, in case if changed
+     * @param string|null $country Two-letter country code.
      *
      * @return array|false
      */
-    public function update(int $id, ?string $name, ?string $email, ?string $password)
+    public function update(int $id, ?string $name, ?string $email, ?string $password, ?string $country)
     {
         if($this->disabled()) {
             return false;
         }
 
-        $attributes = array_filter(compact('id', 'name', 'email', 'password'));
+        $attributes = array_filter(compact('id', 'name', 'email', 'password', 'country'));
 
         $response = $this->client->request('update', compact('id', 'attributes'));
 
