@@ -19,12 +19,17 @@ class Dispatcher
      * @param array $payload
      *
      * @return void
+     *
+     * @throws WebhookException
+     * @throws WebhookValidationException
      */
     public function handle(string $key, array $payload)
     {
         if(!$this->has($key)) {
             throw new WebhookException("Webhook with key \"{$key}\" cannot be found.");
         }
+
+        \Log::debug("Handling an incoming webhook \"{$key}\"", $payload);
 
         $webhook = $this->instantiate($key, $payload);
 
