@@ -89,4 +89,34 @@ trait UserHelpers
     {
         $this->notify(new ResetPasswordNotification($token));
     }
+
+    /**
+     * Transform user's email to "deleted email".
+     *
+     * @param string $email
+     * @param int $index
+     *
+     * @return string
+     */
+    public static function deleteEmail(string $email, int $index): string
+    {
+        if(strpos($email, ".{$index}.deleted" !== false)) {
+            return $email;
+        }
+
+        return "{$email}.{$index}.deleted";
+    }
+
+    /**
+     * Transform user's "deleted email" to an original one.
+     *
+     * @param string $email
+     * @param int $index
+     *
+     * @return string
+     */
+    public static function restoreEmail(string $email, int $index): string
+    {
+        return str_replace(".{$index}.deleted", '', $email);
+    }
 }
