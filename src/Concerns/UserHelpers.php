@@ -71,6 +71,14 @@ trait UserHelpers
     }
 
     /**
+     * @inheritdoc
+     */
+    public function retrieveDeletedAt()
+    {
+        return $this->getDeletedAtColumn();
+    }
+
+    /**
      * Send the password reset notification.
      *
      * @param string $token

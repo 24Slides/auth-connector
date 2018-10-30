@@ -125,11 +125,11 @@ class SyncUsers extends \Illuminate\Console\Command
      */
     private function syncingUsers()
     {
-        if(!$this->hasMode(Syncer::MODE_USERS)) {
+        if (!$this->hasMode(Syncer::MODE_USERS)) {
             return Syncer::retrieveLocals();
         }
 
-        if(!count($ids = ConsoleHelper::stringToArray($this->option('users')))) {
+        if (!count($ids = ConsoleHelper::stringToArray($this->option('users')))) {
             throw new \InvalidArgumentException('No users passed');
         }
 

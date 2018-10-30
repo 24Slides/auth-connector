@@ -41,6 +41,8 @@ trait HandlesActions
      * @param RemoteUser $remote
      *
      * @return void
+     *
+     * @throws
      */
     protected function actionCreate(RemoteUser $remote)
     {
@@ -60,6 +62,8 @@ trait HandlesActions
      * @param RemoteUser $remote
      *
      * @return void
+     *
+     * @throws
      */
     protected function actionUpdate(RemoteUser $remote)
     {
@@ -93,6 +97,8 @@ trait HandlesActions
      * @param RemoteUser $remote
      *
      * @return void
+     *
+     * @throws
      */
     protected function actionDelete(RemoteUser $remote)
     {

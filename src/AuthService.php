@@ -251,6 +251,50 @@ class AuthService
     }
 
     /**
+     * Safely delete a remote user.
+     *
+     * @param int $id Remote user ID.
+     *
+     * @return array|false
+     */
+    public function delete(int $id)
+    {
+        if($this->disabled()) {
+            return false;
+        }
+
+        $response = $this->client->request('delete', compact('id'));
+
+        if(!$this->client->success(true)) {
+            return false;
+        }
+
+        return $response;
+    }
+
+    /**
+     * Restore a remote user.
+     *
+     * @param int $id Remote user ID.
+     *
+     * @return array|false
+     */
+    public function restore(int $id)
+    {
+        if($this->disabled()) {
+            return false;
+        }
+
+        $response = $this->client->request('restore', compact('id'));
+
+        if(!$this->client->success(true)) {
+            return false;
+        }
+
+        return $response;
+    }
+
+    /**
      * Retrieve a remote user
      *
      * @return RemoteUser|null
@@ -312,7 +356,7 @@ class AuthService
     }
 
     /**
-     * Run a fallback handler
+     * Run a fallback handler.
      *
      * @param string $key
      * @param array $parameters

@@ -47,14 +47,25 @@ final class User
     protected $password;
 
     /**
-     * @var \Carbon\Carbon
+     * The date of last update.
+     *
+     * @var Carbon
      */
     protected $updated;
 
     /**
-     * @var \Carbon\Carbon
+     * The creation date.
+     *
+     * @var Carbon
      */
     protected $created;
+
+    /**
+     * The deletion date.
+     *
+     * @var Carbon|null
+     */
+    protected $deleted;
 
     /**
      * The instance of the user locally
@@ -87,6 +98,7 @@ final class User
      * @param string|null $updated
      * @param string $created
      * @param string|null $country
+     * @param string|null $deleted
      * @param string $action
      */
     public function __construct(
@@ -96,6 +108,7 @@ final class User
         ?string $password,
         ?string $updated,
         string $created,
+        ?string $deleted,
         ?string $country,
         string $action = null
     )
@@ -107,6 +120,7 @@ final class User
         $this->updated = new Carbon($updated);
         $this->created = new Carbon($created);
         $this->country = $country;
+        $this->deleted = ($deleted ? new Carbon($deleted) : null);
         $this->remoteAction = $action;
     }
 
@@ -141,7 +155,7 @@ final class User
     }
 
     /**
-     * Get created_at date
+     * Get a creation date.
      *
      * @return Carbon
      */
@@ -218,7 +232,19 @@ final class User
             array_get($user, 'password'),
             array_get($user, 'updated_at'),
             array_get($user, 'created_at'),
-            array_get($user, 'country')
+            array_get($user, 'deleted_at'),
+            array_get($user, 'country'),
+            array_get($user, 'action')
         );
+    }
+
+    /**
+     * Get a deletion date.
+     *
+     * @return Carbon|null
+     */
+    public function getDeleted(): ?Carbon
+    {
+        return $this->deleted;
     }
 }
