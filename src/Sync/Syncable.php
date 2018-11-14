@@ -10,7 +10,7 @@ namespace Slides\Connector\Auth\Sync;
 interface Syncable
 {
     /**
-     * Retrieve user's ID
+     * Retrieve a user's ID.
      *
      * @return int
      */
@@ -24,14 +24,14 @@ interface Syncable
     public function retrieveRemoteId();
 
     /**
-     * Retrieve user's name
+     * Retrieve a user's name.
      *
      * @return string|null
      */
     public function retrieveName();
 
     /**
-     * Retrieve user's email
+     * Retrieve a user's email.
      *
      * @return string
      */
@@ -45,23 +45,30 @@ interface Syncable
     public function retrieveCountry();
 
     /**
-     * Retrieve user's hashed password
+     * Retrieve a user's hashed password.
      *
      * @return string|null
      */
     public function retrievePassword();
 
     /**
-     * Retrieve user's created_at column
+     * Retrieve a user's created_at column.
      *
      * @return \Carbon\Carbon
      */
     public function retrieveCreatedAt();
 
     /**
-     * Retrieve user's updated_at column
+     * Retrieve a user's updated_at column.
      *
      * @return \Carbon\Carbon|null
      */
     public function retrieveUpdatedAt();
+
+    /**
+     * Retrieve a user's deleted_at column.
+     *
+     * @return \Carbon\Carbon|null
+     */
+    public function retrieveDeletedAt();
 }

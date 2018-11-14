@@ -34,6 +34,8 @@ class WebhookController extends \Illuminate\Routing\Controller
      *
      * @param string $key
      * @param Request $request
+     *
+     * @throws \Slides\Connector\Auth\Exceptions\WebhookValidationException
      */
     public function __invoke(string $key, Request $request)
     {

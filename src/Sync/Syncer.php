@@ -246,6 +246,7 @@ class Syncer
             array_get($user, 'password'),
             array_get($user, 'updated_at'),
             array_get($user, 'created_at'),
+            array_get($user, 'deleted_at'),
             array_get($user, 'country'),
             array_get($user, 'action')
         );

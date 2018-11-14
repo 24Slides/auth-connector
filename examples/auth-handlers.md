@@ -93,13 +93,25 @@ class AuthHandlers
     }
 
     /**
-     * Delete a user locally and remotely
+     * Delete a user locally and remotely.
      *
      * @param User $user
      *
      * @return void
      */
     public function delete(User $user)
+    {
+        // ...
+    }
+
+    /**
+     * Restore a user locally and remotely.
+     *
+     * @param User $user
+     *
+     * @return void
+     */
+    public function restore(User $user)
     {
         // ...
     }

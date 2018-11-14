@@ -41,7 +41,7 @@ class Client
      */
     protected $requests = [
         'login', 'unsafeLogin', 'register', 'refresh', 'me', 'update',
-        'forgot', 'validateReset', 'reset', 'sync',
+        'forgot', 'validateReset', 'reset', 'sync', 'delete', 'restore'
     ];
 
     /**
@@ -234,6 +234,30 @@ class Client
     protected function me(): ResponseInterface
     {
         return $this->client->get('me');
+    }
+
+    /**
+     * Delete a remote user.
+     *
+     * @param int $id Local user ID.
+     *
+     * @return ResponseInterface
+     */
+    protected function delete(int $id): ResponseInterface
+    {
+        return $this->client->post('delete/' . $id);
+    }
+
+    /**
+     * Restore a remote user.
+     *
+     * @param int $id Local user ID.
+     *
+     * @return ResponseInterface
+     */
+    protected function restore(int $id): ResponseInterface
+    {
+        return $this->client->post('restore/' . $id);
     }
 
     /**
