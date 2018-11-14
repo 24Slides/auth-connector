@@ -46,6 +46,13 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
     protected $token;
 
     /**
+     * The last error message.
+     *
+     * @var string
+     */
+    protected $lastError;
+
+    /**
      * TokenGuard constructor.
      *
      * @param UserProvider $provider
@@ -80,9 +87,10 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
      */
     public function login(string $email, string $password, bool $remember = false)
     {
-        $this->client->request('login', compact('email', 'password', 'remember'));
+        $response = $this->client->request('login', compact('email', 'password', 'remember'));
 
-        if(!$this->client->success()) {
+        if(!$this->client->success(true)) {
+            $this->lastError = array_get($response, 'message');
             return false;
         }
 
@@ -226,5 +234,15 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
     public function logout()
     {
         Cookie::queue(Cookie::forget($this->authCookie));
+    }
+
+    /**
+     * Get last error message from the server.
+     *
+     * @return string|null
+     */
+    public function getLastError(): ?string
+    {
+        return $this->lastError;
     }
 }
