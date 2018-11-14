@@ -224,7 +224,10 @@ class Syncer
                     'password' => $user->retrievePassword(),
                     'country' => $user->retrieveCountry(),
                     'created_at' => $user->retrieveCreatedAt()->toDateTimeString(),
-                    'updated_at' => $user->retrieveUpdatedAt()->toDateTimeString()
+                    'updated_at' => $user->retrieveUpdatedAt()->toDateTimeString(),
+                    'deleted_at' => $user->retrieveDeletedAt()
+                        ? $user->retrieveDeletedAt()->toDateTimeString()
+                        : null
                 ];
             })
             ->toArray();
