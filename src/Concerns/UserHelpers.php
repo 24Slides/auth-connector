@@ -75,7 +75,7 @@ trait UserHelpers
      */
     public function retrieveDeletedAt()
     {
-        return $this->getDeletedAtColumn();
+        return $this->deleted_at;
     }
 
     /**
