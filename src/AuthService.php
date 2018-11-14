@@ -4,9 +4,10 @@ namespace Slides\Connector\Auth;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Auth\Guard as GuardContract;
+use Slides\Connector\Auth\Sync\User as RemoteUser;
 
 /**
- * Class Service
+ * Class AuthService
  *
  * @package Slides\Connector\Auth
  */
@@ -88,6 +89,28 @@ class AuthService
     }
 
     /**
+     * Authenticate a user without the password.
+     *
+     * Warning! This method has implemented temporarily to make able to login users
+     * who use Social Auth on 24Templates. MUST NOT be used in any other cases.
+     *
+     * @param string $email
+     * @param bool $remember
+     *
+     * @return mixed
+     *
+     * @throws
+     */
+    public function unsafeLogin(string $email, bool $remember = false)
+    {
+        if($this->disabled()) {
+            return $this->handleFallback('unsafeLogin', compact('email', 'remember'));
+        }
+
+        return $this->guard->unsafeLogin($email, $remember);
+    }
+
+    /**
      * Logout a user.
      *
      * @return mixed
@@ -112,16 +135,17 @@ class AuthService
      * @param string $name
      * @param string $email
      * @param string $password
+     * @param string $country
      *
      * @return array
      */
-    public function register(int $userId, string $name, string $email, string $password)
+    public function register(int $userId, string $name, string $email, string $password, string $country)
     {
         if($this->disabled()) {
             return [];
         }
 
-        return $this->client->request('register', compact('userId', 'name', 'email', 'password'));
+        return $this->client->request('register', compact('userId', 'name', 'email', 'password', 'country'));
     }
 
     /**
@@ -205,16 +229,17 @@ class AuthService
      * @param string|null $name
      * @param string|null $email
      * @param string|null $password Raw password, in case if changed
+     * @param string|null $country Two-letter country code.
      *
      * @return array|false
      */
-    public function update(int $id, ?string $name, ?string $email, ?string $password)
+    public function update(int $id, ?string $name, ?string $email, ?string $password, ?string $country)
     {
         if($this->disabled()) {
             return false;
         }
 
-        $attributes = array_filter(compact('id', 'name', 'email', 'password'));
+        $attributes = array_filter(compact('id', 'name', 'email', 'password', 'country'));
 
         $response = $this->client->request('update', compact('id', 'attributes'));
 
@@ -223,6 +248,75 @@ class AuthService
         }
 
         return $response;
+    }
+
+    /**
+     * Safely delete a remote user.
+     *
+     * @param int $id Remote user ID.
+     *
+     * @return array|false
+     */
+    public function delete(int $id)
+    {
+        if($this->disabled()) {
+            return false;
+        }
+
+        $response = $this->client->request('delete', compact('id'));
+
+        if(!$this->client->success(true)) {
+            return false;
+        }
+
+        return $response;
+    }
+
+    /**
+     * Restore a remote user.
+     *
+     * @param int $id Remote user ID.
+     *
+     * @return array|false
+     */
+    public function restore(int $id)
+    {
+        if($this->disabled()) {
+            return false;
+        }
+
+        $response = $this->client->request('restore', compact('id'));
+
+        if(!$this->client->success(true)) {
+            return false;
+        }
+
+        return $response;
+    }
+
+    /**
+     * Retrieve a remote user
+     *
+     * @return RemoteUser|null
+     */
+    public function retrieveByToken()
+    {
+        if($this->disabled()) {
+            return null;
+        }
+
+        try {
+            $response = $this->client->request('me');
+        }
+        catch(\Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException $e) {
+            return null;
+        }
+
+        if(!$this->client->success(true)) {
+            return null;
+        }
+
+        return RemoteUser::createFromResponse($response);
     }
 
     /**
@@ -262,7 +356,7 @@ class AuthService
     }
 
     /**
-     * Run a fallback handler
+     * Run a fallback handler.
      *
      * @param string $key
      * @param array $parameters
@@ -304,7 +398,7 @@ class AuthService
                 throw $e;
             }
 
-            $output = $fallback();
+            $output = $fallback($e);
         }
 
         DB::commit();
@@ -330,5 +424,25 @@ class AuthService
     public function setFallbackGuard(GuardContract $guard): void
     {
         $this->fallbackGuard = $guard;
+    }
+
+    /**
+     * Set HTTP Client.
+     *
+     * @param Client $client
+     */
+    public function setClient(Client $client): void
+    {
+        $this->client = $client;
+    }
+
+    /**
+     * Get HTTP client.
+     *
+     * @return Client
+     */
+    public function getClient(): Client
+    {
+        return $this->client;
     }
 }

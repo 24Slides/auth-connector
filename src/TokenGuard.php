@@ -51,18 +51,20 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
      * @param UserProvider $provider
      * @param Request $request
      * @param AuthService $authService
+     * @param Client|null $client
      */
     public function __construct(
         UserProvider $provider,
         Request $request,
-        AuthService $authService
+        AuthService $authService,
+        Client $client = null
     )
     {
         $this->provider = $provider;
         $this->request = $request;
         $this->authService = $authService;
 
-        $this->client = new Client();
+        $this->client = $client ?? new Client();
     }
 
     /**
@@ -79,6 +81,37 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
     public function login(string $email, string $password, bool $remember = false)
     {
         $this->client->request('login', compact('email', 'password', 'remember'));
+
+        if(!$this->client->success()) {
+            return false;
+        }
+
+        if(!$this->token = $this->client->getToken()) {
+            return false;
+        }
+
+        $this->storeToken($this->token);
+
+        return $this->token;
+    }
+
+    /**
+     * Authenticate a user without the password.
+     *
+     * Warning! This method has implemented temporarily to make able to login users
+     * who use Social Auth on 24Templates. MUST NOT be used in any other cases.
+     *
+     * @param string $email
+     * @param string $password
+     * @param bool $remember
+     *
+     * @return mixed
+     *
+     * @throws
+     */
+    public function unsafeLogin(string $email, bool $remember = false)
+    {
+        $this->client->request('unsafeLogin', compact('email', 'remember'));
 
         if(!$this->client->success()) {
             return false;
@@ -182,7 +215,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
             return null;
         }
 
-        return $this->provider->retrieveById($userId);
+        return $this->provider->retrieveByCredentials(['remote_id' => $userId]);
     }
 
     /**

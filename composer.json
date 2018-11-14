@@ -23,7 +23,8 @@
     "require-dev": {
         "mockery/mockery": "^0.9.9",
         "orchestra/testbench": "~3.0",
-        "phpunit/phpunit": "~6.0",
+        "phpunit/php-code-coverage": "^6.0",
+        "phpunit/phpunit": "^7",
         "squizlabs/php_codesniffer": "^2.3"
     },
     "autoload": {
@@ -41,9 +42,6 @@
             "dev-master": "1.0-dev"
         },
         "laravel": {
-            "providers": [
-                "Slides\\Connector\\Auth\\ServiceProvider"
-            ],
             "aliases": {
                 "AuthService": "Slides\\Connector\\Auth\\Facades\\AuthService"
             }

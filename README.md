@@ -1,5 +1,12 @@
 # Integration with Authentication Service
 
+[![Latest Stable Version][ico-version]][link-packagist]
+[![Software License][ico-license]](LICENSE.md)
+[![Build Status][ico-travis]][link-travis]
+[![Quality Score][ico-code-quality]][link-code-quality]
+[![Code Coverage][ico-code-coverage]][link-code-coverage]
+[![Total Downloads][ico-downloads]][link-downloads]
+
 Simplifies integration with third-party services including ready-to-use solutions like HTTP Client, Auth Guard, 
 synchronization, encryption etc.
 
@@ -18,6 +25,15 @@ SERVICE_AUTH_PUBLIC=
 SERVICE_AUTH_SECRET=
 ```
 - Install a dependency via Composer: `composer require 24slides/auth-connector`
+- Add a package provider to `config/app.php`:
+```php
+'providers' => [
+    ...
+    Slides\Connector\Auth\ServiceProvider::class,
+```
+
+> The provider must be defined after `AuthServiceProvider`.
+
 - Define auth guards at `config/auth.php`:
 
 ```php
@@ -49,12 +65,50 @@ SERVICE_AUTH_SECRET=
 
 > If you want to enable IDE features like hints, you need to install [barryvdh/laravel-ide-helper](https://github.com/barryvdh/laravel-ide-helper).
 
+- Publish config and migrations:
+
+```php
+php artisan vendor:publish --provider Slides\Connector\Auth\ServiceProvider
+```
+
+- Run the published migration: `php artisan migrate`
+
+> The migration adds `remote_id` column to your User model which is supposed to be an identificator of synced users.
+
+- Disable encryption for the auth cookie which identifies a user:
+
+**`app/Http/Middleware/EncryptCookies:`**
+```php
+/**
+ * The names of the cookies that should not be encrypted.
+ *
+ * @var array
+ */
+protected $except = [
+    'authKey'
+];
+```
+
+- Disable verifying CSRF token for incoming webhooks:
+
+**`app/Http/Middleware/VerifyCsrfToken:`**
+```php
+/**
+ * The URIs that should be excluded from CSRF verification.
+ *
+ * @var array
+ */
+protected $except = [
+    'connector/webhook/*'
+];
+```
+
 ### Syncing users
 
 To allow syncing users, implement the `Slides\Connector\Auth\Sync\Syncable` interface on your `User` model.
 
-There is a trait helper `Slides\Connector\Auth\Concerns\UserHelper` which implements methods, 
-if you have custom attributes just override methods from there.
+There is a trait helper `Slides\Connector\Auth\Concerns\UserHelper` which covers almost all the methods, except `retrieveCountry`, 
+which requires 2-digit country code (ISO 3166-1 alpha-2). If you have custom attributes just override methods from there.
 
 ### Authentication handlers
 
@@ -140,3 +194,16 @@ public function sendPasswordResetNotification(string $token)
 Route::get('password/reset/{token}/{email}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
 ```
 
+[ico-version]: https://poser.pugx.org/24slides/auth-connector/v/stable?format=flat-square
+[ico-license]: https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square
+[ico-travis]: https://img.shields.io/travis/24Slides/auth-connector.svg?style=flat-square
+[ico-code-quality]: https://img.shields.io/scrutinizer/g/24slides/auth-connector.svg?style=flat-square
+[ico-code-coverage]: https://img.shields.io/scrutinizer/coverage/g/24slides/auth-connector.svg?style=flat-square
+[ico-downloads]: https://img.shields.io/packagist/dt/24slides/auth-connector.svg?style=flat-square
+
+[link-packagist]: https://packagist.org/packages/24slides/auth-connector
+[link-travis]: https://travis-ci.org/24Slides/auth-connector
+[link-scrutinizer]: https://scrutinizer-ci.com/g/24slides/auth-connector/code-structure
+[link-code-quality]: https://scrutinizer-ci.com/g/24slides/auth-connector
+[link-code-coverage]: https://scrutinizer-ci.com/g/24Slides/auth-connector
+[link-downloads]: https://packagist.org/packages/24slides/auth-connector

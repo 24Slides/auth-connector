@@ -45,7 +45,10 @@ class AuthHandlers
         // As a result, the function should retrieve an updated user model instance
         $user = User::create($attributes);
 
-        $this->authService->register($user->id, $user->name, $user->email, $attributes['password']);
+        $response = $this->authService->register($user->id, $user->name, $user->email, $attributes['password']);
+
+        $user->remote_id = array_get($response, 'user.id');
+        $user->save();
 
         return $user;
     }
@@ -67,7 +70,7 @@ class AuthHandlers
         $success = User::update($attributes);
 
         if($success) {
-            $this->authService->update($user->id, $user->name, $user->email, null);
+            $this->authService->update($user->remote_id, $user->name, $user->email, null);
         }
 
         return $user;
@@ -87,10 +90,34 @@ class AuthHandlers
         $success = User::update(['password' => \Illuminate\Support\Facades\Hash::make($password)]);
 
         if($success) {
-            $this->authService->update($user->id, null, null, $password);
+            $this->authService->update($user->remote_id, null, null, $password);
         }
 
         return $user;
+    }
+
+    /**
+     * Delete a user locally and remotely.
+     *
+     * @param User $user
+     *
+     * @return void
+     */
+    public function delete(User $user)
+    {
+        // ...
+    }
+
+    /**
+     * Restore a user locally and remotely.
+     *
+     * @param User $user
+     *
+     * @return void
+     */
+    public function restore(User $user)
+    {
+        // ...
     }
 
     /**
@@ -120,7 +147,7 @@ class AuthHandlers
         // Here you should define the logic which updates a local user, available at $local argument and use
         // the data available at SyncUser instance.
         //
-        // Be careful regarding the password property, it's already hashed password so you don't need to hash it.
+        // Be careful regarding the password property, it's already hashed so you don't need to hash it.
     }
 
     /**
@@ -149,6 +176,26 @@ class AuthHandlers
     public function fallbackLogin($guard, string $email, string $password, bool $remember = false)
     {
         // Here you should define the logic which attempts a user to login using the email and password attributes.
+        //
+        // The parameter $guard represents your fallback driver's guard defined at `config/auth.php`.
+    }
+
+    /**
+     * Login a user when remote service is disabled without the password
+     *
+     * @param \Illuminate\Contracts\Auth\Guard $guard
+     * @param string $email
+     * @param string $password
+     * @param bool $remember
+     *
+     * @return bool
+     */
+    public function fallbackUnsafeLogin($guard, string $email, string $password, bool $remember = false)
+    {
+        // Here you should define the logic which authenticates a user without the password.
+        //
+        // Warning! This method has implemented temporarily to make able to login users
+        // who use Social Auth on 24Templates. MUST NOT be used in any other cases.
         //
         // The parameter $guard represents your fallback driver's guard defined at `config/auth.php`.
     }

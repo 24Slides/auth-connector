@@ -19,5 +19,24 @@
         <env name="CACHE_DRIVER" value="array"/>
         <env name="SESSION_DRIVER" value="array"/>
         <env name="QUEUE_DRIVER" value="sync"/>
+        <env name="SERVICE_AUTH_PUBLIC" value="dummy"/>
+        <env name="SERVICE_AUTH_SECRET" value="dummy"/>
     </php>
+    <filter>
+        <whitelist processUncoveredFilesFromWhitelist="true">
+            <directory suffix=".php">src</directory>
+            <exclude>
+                <directory>src/Http</directory>
+                <directory>src/Commands</directory>
+                <directory>src/Concerns</directory>
+                <directory>src/Facades</directory>
+                <directory>src/Notifications</directory>
+                <file>src/ServiceProvider.php</file>
+                <file>src/TokenGuard.php</file>
+            </exclude>
+        </whitelist>
+    </filter>
+    <logging>
+        <log type="coverage-clover" target="tests/_reports"/>
+    </logging>
 </phpunit>

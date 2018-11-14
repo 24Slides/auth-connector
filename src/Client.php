@@ -40,8 +40,8 @@ class Client
      * @var array
      */
     protected $requests = [
-        'login', 'register', 'refresh', 'me', 'update',
-        'forgot', 'validateReset', 'reset', 'sync',
+        'login', 'unsafeLogin', 'register', 'refresh', 'me', 'update',
+        'forgot', 'validateReset', 'reset', 'sync', 'delete', 'restore'
     ];
 
     /**
@@ -105,22 +105,43 @@ class Client
     }
 
     /**
+     * Login a user
+     *
+     * Warning! This method has implemented temporarily to make able to login users
+     * who use Social Auth on 24Templates. MUST NOT be used in any other cases.
+     *
+     * @param string $email
+     * @param bool $remember
+     *
+     * @return ResponseInterface
+     */
+    protected function unsafeLogin(string $email, bool $remember = false): ResponseInterface
+    {
+        return $this->client->post('unsafe-login', ['json' => [
+            'email' => $email,
+            'remember' => $remember
+        ]]);
+    }
+
+    /**
      * Register a user
      *
      * @param int $userId Local user ID
      * @param string $name
      * @param string $email
      * @param string $password
+     * @param string $country
      *
      * @return ResponseInterface
      */
-    protected function register(int $userId, string $name, string $email, string $password): ResponseInterface
+    protected function register(int $userId, string $name, string $email, string $password, string $country): ResponseInterface
     {
         return $this->client->post('register', ['json' => [
             'userId' => $userId,
             'name' => $name,
             'email' => $email,
-            'password' => $password
+            'password' => $password,
+            'country' => $country
         ]]);
     }
 
@@ -175,14 +196,19 @@ class Client
      * Synchronize remote and local users
      *
      * @param array $users
+     * @param array $modes
      *
      * @return ResponseInterface
      */
-    protected function sync(array $users): ResponseInterface
+    protected function sync(array $users, array $modes): ResponseInterface
     {
-        return $this->client->post('sync', ['json' => [
-            'users' => $users
-        ]]);
+        return $this->client->post('sync', [
+            'json' => [
+                'users' => $users,
+                'modes' => $modes
+            ],
+            'timeout' => 0
+        ]);
     }
 
     /**
@@ -198,6 +224,40 @@ class Client
         return $this->client->post('update', ['json' => array_merge(
             ['userId' => $id], $attributes
         )]);
+    }
+
+    /**
+     * Retrieve an authenticated user
+     *
+     * @return ResponseInterface
+     */
+    protected function me(): ResponseInterface
+    {
+        return $this->client->get('me');
+    }
+
+    /**
+     * Delete a remote user.
+     *
+     * @param int $id Local user ID.
+     *
+     * @return ResponseInterface
+     */
+    protected function delete(int $id): ResponseInterface
+    {
+        return $this->client->post('delete/' . $id);
+    }
+
+    /**
+     * Restore a remote user.
+     *
+     * @param int $id Local user ID.
+     *
+     * @return ResponseInterface
+     */
+    protected function restore(int $id): ResponseInterface
+    {
+        return $this->client->post('restore/' . $id);
     }
 
     /**
@@ -217,8 +277,10 @@ class Client
         }
 
         if(!method_exists($this, $name)) {
-            throw new \InvalidArgumentException("Request `{$name}` listed but isn't implemented");
+            throw new \InvalidArgumentException("Request `{$name}` listed but is not implemented");
         }
+        
+        \Illuminate\Support\Facades\Log::debug("[Connector] Sending a {$name} request", $parameters);
 
         return $this->parseResponse(
             $this->response = call_user_func_array([$this, $name], $parameters)
@@ -240,7 +302,7 @@ class Client
     /**
      * Checks whether status of the response is successful
      *
-     * @param bool Whether need to check for "success" status from the response
+     * @param bool $withStatus Whether need to check for "success" status from the response
      *
      * @return bool
      */
@@ -305,10 +367,14 @@ class Client
      */
     private function parseResponse(ResponseInterface $response): array
     {
+        \Illuminate\Support\Facades\Log::debug("[Connector] Got a response. Status: " . $response->getStatusCode());
+
         $decoded = (string) $response->getBody();
         $decoded = json_decode($decoded, true);
 
         $this->formatted = $decoded;
+
+        \Illuminate\Support\Facades\Log::debug(null, $decoded ?? []);
 
         if($this->success()) {
            return $this->formatted;
@@ -319,6 +385,10 @@ class Client
         switch ($this->response->getStatusCode()) {
             case \Illuminate\Http\Response::HTTP_UNPROCESSABLE_ENTITY: {
                 throw ValidationException::create($message);
+                break;
+            }
+            case \Illuminate\Http\Response::HTTP_UNAUTHORIZED: {
+                throw new \Symfony\Component\HttpKernel\Exception\UnauthorizedHttpException('auth', $message);
                 break;
             }
             default: {

@@ -44,12 +44,14 @@ class AuthHandlers
     {
         $user = User::create($attributes);
 
-        $this->authService->register(
+        $response = $this->authService->register(
             $user->id,
             $user->name,
             $user->email,
             $attributes['password']
         );
+        
+        $user->update(['remote_id' => array_get($response, 'user.id')]);
 
         return $user;
     }
@@ -67,7 +69,7 @@ class AuthHandlers
         $attributes = $request->only('name', 'email');
 
         if($user->update($attributes)) {
-            $this->authService->update($user->id, $user->name, $user->email, null);
+            $this->authService->update($user->remote_id, $user->name, $user->email, null);
         }
 
         return $user;
@@ -84,20 +86,32 @@ class AuthHandlers
     public function updatePassword(User $user, string $password)
     {
         if($user->update(['password' => \Hash::make($password)])) {
-            $this->authService->update($user->id, null, null, $password);
+            $this->authService->update($user->remote_id, null, null, $password);
         }
 
         return $user;
     }
 
     /**
-     * Delete a user locally and remotely
+     * Delete a user locally and remotely.
      *
      * @param User $user
      *
      * @return void
      */
     public function delete(User $user)
+    {
+        // ...
+    }
+
+    /**
+     * Restore a user locally and remotely.
+     *
+     * @param User $user
+     *
+     * @return void
+     */
+    public function restore(User $user)
     {
         // ...
     }
@@ -112,6 +126,7 @@ class AuthHandlers
     public function syncCreate(SyncUser $remote)
     {
         User::create([
+            'remote_id' => $remote->getRemoteId(),
             'name' => $remote->getName(),
             'email' => $remote->getEmail(),
             'password' => $remote->getPassword()
@@ -129,9 +144,10 @@ class AuthHandlers
     public function syncUpdate(SyncUser $remote, User $local)
     {
         $local->update([
+            'remote_id' => $remote->getRemoteId(),
             'email' => $remote->getEmail(),
             'name' => $remote->getName(),
-            'password' => $remote->getPassword(),
+            'password' => $remote->getPassword() ?? $local->getAuthPassword(),
             'updated_at' => $remote->getUpdated()
         ]);
     }
@@ -162,6 +178,33 @@ class AuthHandlers
     public function fallbackLogin(SessionGuard $guard, string $email, string $password, bool $remember = false)
     {
         return $guard->attempt(compact('email', 'password'), $remember);
+    }
+
+    /**
+     * Login a user without the password when remote service is disabled
+     *
+     * Warning! This method has implemented temporarily to make able to login users
+     * who use Social Auth on 24Templates. MUST NOT be used in any other cases.
+     * 
+     * @param SessionGuard $guard
+     * @param string $email
+     * @param bool $remember
+     *
+     * @return bool
+     */
+    public function fallbackUnsafeLogin(SessionGuard $guard, string $email, bool $remember = false)
+    {
+        $user = User::query()
+            ->where('email', $email)
+            ->first();
+        
+        if(!$user) {
+            return false;
+        }
+        
+        $guard->login($user, $remember);
+        
+        return true;
     }
 
     /**
@@ -217,7 +260,7 @@ class AuthHandlers
     }
 
     /**
-     * Send a link with password resetting token.
+     * Reset a password by the token.
      *
      * @param SessionGuard $guard
      * @param string $email
@@ -227,8 +270,6 @@ class AuthHandlers
      */
     public function fallbackResetPassword(SessionGuard $guard, string $token, string $email, string $password, string $confirmation)
     {
-        $email = decrypt($email);
-
         $credentials = compact('email', 'token', 'password');
         $credentials['password_confirmation'] = $confirmation;
 

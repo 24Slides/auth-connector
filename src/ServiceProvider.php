@@ -26,9 +26,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function boot()
     {
         $this->loadPublishes();
-        $this->loadMigrations();
         $this->loadConsoleCommands();
         $this->loadGuards();
+        $this->loadRoutes();
     }
 
     /**
@@ -54,16 +54,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     protected function loadPublishes()
     {
         $this->publishes([__DIR__ . '/../config/connector.php' => config_path('connector.php')], 'config');
-    }
-
-    /**
-     * Load migrations
-     *
-     * @return void
-     */
-    protected function loadMigrations()
-    {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->publishes([__DIR__ . '/../database/migrations/' => database_path('migrations')], 'migrations');
     }
 
     /**
@@ -79,7 +70,10 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $this->commands([
             \Slides\Connector\Auth\Commands\MakeAuthHandlers::class,
-            \Slides\Connector\Auth\Commands\SyncUsers::class
+            \Slides\Connector\Auth\Commands\SyncUsers::class,
+            \Slides\Connector\Auth\Commands\SyncExport::class,
+            \Slides\Connector\Auth\Commands\SyncImport::class,
+            \Slides\Connector\Auth\Commands\ManageUsers::class
         ]);
     }
 
@@ -107,12 +101,28 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     }
 
     /**
+     * Load routes.
+     *
+     * @return void
+     */
+    protected function loadRoutes()
+    {
+        $this->loadRoutesFrom(__DIR__ . '/Http/routes.php');
+
+        \Illuminate\Support\Facades\Route::getRoutes()->refreshNameLookups();
+    }
+
+    /**
      * Register package facades
      */
     protected function registerFacades()
     {
+        $this->app->singleton(Client::class, function($app) {
+            return new Client();
+        });
+
         $this->app->singleton(AuthService::class, function($app) {
-            return new AuthService(new Client());
+            return new AuthService($app[Client::class]);
         });
 
         $this->app->bind('authService', function($app) {
@@ -131,12 +141,13 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             return $app->make(TokenGuard::class, [
                 'provider' => $app['auth']->createUserProvider($app['config']['auth.guards.authService.provider']),
                 'request' => $app['request'],
-                'authService' => $app['authService']
+                'authService' => $app['authService'],
+                'client' => $app[Client::class]
             ]);
         });
 
         // Register the fallback driver if service is disabled
-        if(!$this->enabled()) {
+        if(!$this->app->runningInConsole() && !$this->enabled()) {
             $this->app['auth']->shouldUse('fallback');
         }
     }
