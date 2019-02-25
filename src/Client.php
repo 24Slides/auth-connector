@@ -35,6 +35,15 @@ class Client
     protected $formatted = [];
 
     /**
+     * The list of parameters that must be hidden.
+     *
+     * @var array
+     */
+    protected $excludeLoggingParameters = [
+        'password'
+    ];
+
+    /**
      * The list of supported requests
      *
      * @var array
@@ -279,8 +288,8 @@ class Client
         if(!method_exists($this, $name)) {
             throw new \InvalidArgumentException("Request `{$name}` listed but is not implemented");
         }
-        
-        \Illuminate\Support\Facades\Log::debug("[Connector] Sending a {$name} request", $parameters);
+
+        $this->log("Sending a {$name} request", $parameters);
 
         return $this->parseResponse(
             $this->response = call_user_func_array([$this, $name], $parameters)
@@ -367,14 +376,14 @@ class Client
      */
     private function parseResponse(ResponseInterface $response): array
     {
-        \Illuminate\Support\Facades\Log::debug("[Connector] Got a response. Status: " . $response->getStatusCode());
+        $this->log('Got a response. Status: ' . $response->getStatusCode());
 
         $decoded = (string) $response->getBody();
         $decoded = json_decode($decoded, true);
 
         $this->formatted = $decoded;
 
-        \Illuminate\Support\Facades\Log::debug(null, $decoded ?? []);
+        $this->log(null, $decoded ?? []);
 
         if($this->success()) {
            return $this->formatted;
@@ -438,5 +447,22 @@ class Client
     private function credential(string $key, $default = null)
     {
         return array_get(config('connector.credentials.auth', []), $key, $default);
+    }
+
+    /**
+     * Send a message to logger.
+     *
+     * @param string|null $message
+     * @param array $context
+     *
+     * @return void
+     */
+    private function log(?string $message, array $context = [])
+    {
+        $securedContext = \Slides\Connector\Auth\Helpers\ArrayHelper::replaceValuesByMatchingKeys(
+            $context, $this->excludeLoggingParameters, '...'
+        );
+
+        \Illuminate\Support\Facades\Log::debug('[Connector] ' . $message, $securedContext);
     }
 }
