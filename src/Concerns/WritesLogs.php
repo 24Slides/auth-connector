@@ -17,7 +17,8 @@ trait WritesLogs
      * @var array
      */
     protected $excludeLoggingParameters = [
-        'password'
+        'password', 'password_confirmation', 'passwordConfirmation',
+        'password_confirm', 'passwordConfirm', 'confirmation'
     ];
 
     /**
