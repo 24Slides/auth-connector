@@ -4,6 +4,7 @@ namespace Slides\Connector\Auth\Webhooks;
 
 use Slides\Connector\Auth\Exceptions\WebhookException;
 use Slides\Connector\Auth\Exceptions\WebhookValidationException;
+use Slides\Connector\Auth\Concerns\WritesLogs;
 
 /**
  * Class Dispatcher
@@ -12,6 +13,8 @@ use Slides\Connector\Auth\Exceptions\WebhookValidationException;
  */
 class Dispatcher
 {
+    use WritesLogs;
+
     /**
      * Handle a webhook.
      *
@@ -29,7 +32,7 @@ class Dispatcher
             throw new WebhookException("Webhook with key \"{$key}\" cannot be found.");
         }
 
-        \Log::debug("Handling an incoming webhook \"{$key}\"", $payload);
+        $this->log("Handling the incoming webhook \"{$key}\"", $payload);
 
         $webhook = $this->instantiate($key, $payload);
 
