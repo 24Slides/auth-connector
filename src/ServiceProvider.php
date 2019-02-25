@@ -2,8 +2,6 @@
 
 namespace Slides\Connector\Auth;
 
-use Illuminate\Support\Facades\Auth;
-
 /**
  * Class ServiceProvider
  *

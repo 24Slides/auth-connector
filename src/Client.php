@@ -5,6 +5,7 @@ namespace Slides\Connector\Auth;
 use GuzzleHttp\Client as HttpClient;
 use Psr\Http\Message\ResponseInterface;
 use Slides\Connector\Auth\Exceptions\ValidationException;
+use Slides\Connector\Auth\Concerns\WritesLogs;
 
 /**
  * Class Client
@@ -13,6 +14,8 @@ use Slides\Connector\Auth\Exceptions\ValidationException;
  */
 class Client
 {
+    use WritesLogs;
+
     /**
      * The HTTP client
      *
@@ -33,15 +36,6 @@ class Client
      * @var array
      */
     protected $formatted = [];
-
-    /**
-     * The list of parameters that must be hidden.
-     *
-     * @var array
-     */
-    protected $excludeLoggingParameters = [
-        'password'
-    ];
 
     /**
      * The list of supported requests
@@ -447,22 +441,5 @@ class Client
     private function credential(string $key, $default = null)
     {
         return array_get(config('connector.credentials.auth', []), $key, $default);
-    }
-
-    /**
-     * Send a message to logger.
-     *
-     * @param string|null $message
-     * @param array $context
-     *
-     * @return void
-     */
-    private function log(?string $message, array $context = [])
-    {
-        $securedContext = \Slides\Connector\Auth\Helpers\ArrayHelper::replaceValuesByMatchingKeys(
-            $context, $this->excludeLoggingParameters, '...'
-        );
-
-        \Illuminate\Support\Facades\Log::debug('[Connector] ' . $message, $securedContext);
     }
 }
