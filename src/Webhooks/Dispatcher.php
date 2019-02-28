@@ -5,6 +5,7 @@ namespace Slides\Connector\Auth\Webhooks;
 use Slides\Connector\Auth\Exceptions\WebhookException;
 use Slides\Connector\Auth\Exceptions\WebhookValidationException;
 use Slides\Connector\Auth\Concerns\WritesLogs;
+use Slides\Connector\Auth\Contracts\Webhook as WebhookContract;
 
 /**
  * Class Dispatcher
@@ -32,14 +33,14 @@ class Dispatcher
             throw new WebhookException("Webhook with key \"{$key}\" cannot be found.");
         }
 
-        $webhook = $this->instantiate($key, $payload);
+        $webhook = $this->instantiate($key);
 
-        if(!$webhook->validate()) {
+        if(!$webhook->validate($payload)) {
             throw new WebhookValidationException($webhook->getValidator());
         }
 
         try {
-            return $webhook->handle();
+            return $webhook->handle($payload);
         }
         catch(\Exception $e) {
             throw new WebhookException(get_class($webhook) . ': ' . $e->getMessage());
@@ -50,15 +51,14 @@ class Dispatcher
      * Instantiate a webhook handler.
      *
      * @param string $key
-     * @param array $payload
      *
-     * @return Webhook
+     * @return Webhook|WebhookContract
      */
-    private function instantiate(string $key, array $payload)
+    private function instantiate(string $key)
     {
         $webhook = $this->get($key);
 
-        return new $webhook($payload);
+        return app($webhook);
     }
 
     /**
