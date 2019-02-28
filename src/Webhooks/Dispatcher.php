@@ -21,7 +21,7 @@ class Dispatcher
      * @param string $key
      * @param array $payload
      *
-     * @return void
+     * @return array|null
      *
      * @throws WebhookException
      * @throws WebhookValidationException
@@ -32,8 +32,6 @@ class Dispatcher
             throw new WebhookException("Webhook with key \"{$key}\" cannot be found.");
         }
 
-        $this->log("Handling the incoming webhook \"{$key}\"", $payload);
-
         $webhook = $this->instantiate($key, $payload);
 
         if(!$webhook->validate()) {
@@ -41,7 +39,7 @@ class Dispatcher
         }
 
         try {
-            $webhook->handle();
+            return $webhook->handle();
         }
         catch(\Exception $e) {
             throw new WebhookException(get_class($webhook) . ': ' . $e->getMessage());

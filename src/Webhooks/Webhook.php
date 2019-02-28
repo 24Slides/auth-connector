@@ -35,7 +35,7 @@ abstract class Webhook
     /**
      * Handle the incoming request.
      *
-     * @return void
+     * @return array|null
      */
     public abstract function handle();
 
