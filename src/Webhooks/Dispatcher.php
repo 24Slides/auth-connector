@@ -94,7 +94,8 @@ class Dispatcher
     public static function webhooks()
     {
         return [
-            'user.sync' => UserSyncWebhook::class
+            'user.sync' => UserSyncWebhook::class,
+            'assess.users' => AssessUsersWebhook::class
         ];
     }
 }
