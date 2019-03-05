@@ -5,6 +5,7 @@ namespace Slides\Connector\Auth\Webhooks;
 use Slides\Connector\Auth\Exceptions\WebhookException;
 use Slides\Connector\Auth\Exceptions\WebhookValidationException;
 use Slides\Connector\Auth\Concerns\WritesLogs;
+use Slides\Connector\Auth\Contracts\Webhook as WebhookContract;
 
 /**
  * Class Dispatcher
@@ -21,7 +22,7 @@ class Dispatcher
      * @param string $key
      * @param array $payload
      *
-     * @return void
+     * @return array|null
      *
      * @throws WebhookException
      * @throws WebhookValidationException
@@ -32,16 +33,14 @@ class Dispatcher
             throw new WebhookException("Webhook with key \"{$key}\" cannot be found.");
         }
 
-        $this->log("Handling the incoming webhook \"{$key}\"", $payload);
+        $webhook = $this->instantiate($key);
 
-        $webhook = $this->instantiate($key, $payload);
-
-        if(!$webhook->validate()) {
+        if(!$webhook->validate($payload)) {
             throw new WebhookValidationException($webhook->getValidator());
         }
 
         try {
-            $webhook->handle();
+            return $webhook->handle($payload);
         }
         catch(\Exception $e) {
             throw new WebhookException(get_class($webhook) . ': ' . $e->getMessage());
@@ -52,15 +51,14 @@ class Dispatcher
      * Instantiate a webhook handler.
      *
      * @param string $key
-     * @param array $payload
      *
-     * @return Webhook
+     * @return Webhook|WebhookContract
      */
-    private function instantiate(string $key, array $payload)
+    private function instantiate(string $key)
     {
         $webhook = $this->get($key);
 
-        return new $webhook($payload);
+        return app($webhook);
     }
 
     /**
@@ -96,7 +94,8 @@ class Dispatcher
     public static function webhooks()
     {
         return [
-            'user.sync' => UserSyncWebhook::class
+            'user.sync' => UserSyncWebhook::class,
+            'assess.users' => AssessUsersWebhook::class
         ];
     }
 }
