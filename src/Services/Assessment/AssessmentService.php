@@ -36,8 +36,8 @@ class AssessmentService
     public function differentiateUsers(array $keys): array
     {
         return [
-            'uniqueServiceUserKeys' => $this->retrieveUniqueLocals($keys),
-            'uniqueRemoteKeys' => $this->retrieveUniqueRemotes($keys)
+            'uniqueTenantUsers' => $this->retrieveUniqueLocals($keys),
+            'uniqueServiceUserKeys' => $this->retrieveUniqueRemotes($keys)
         ];
     }
 
