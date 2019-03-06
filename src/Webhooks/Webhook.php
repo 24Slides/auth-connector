@@ -2,14 +2,14 @@
 
 namespace Slides\Connector\Auth\Webhooks;
 
-use Slides\Connector\Auth\Sync\Syncer;
+use Illuminate\Support\Facades\Validator;
 
 /**
  * Class Webhook
  *
  * @package Slides\Connector\Auth\Webhooks
  */
-abstract class Webhook
+abstract class Webhook implements \Slides\Connector\Auth\Contracts\Webhook
 {
     /**
      * The request payload.
@@ -33,30 +33,16 @@ abstract class Webhook
     protected abstract function rules();
 
     /**
-     * Handle the incoming request.
-     *
-     * @return void
-     */
-    public abstract function handle();
-
-    /**
-     * Webhook constructor.
+     * Validate a payload.
      *
      * @param array $payload
-     */
-    public function __construct(array $payload)
-    {
-        $this->payload = $payload;
-        $this->validator = \Illuminate\Support\Facades\Validator::make($this->payload, $this->rules());
-    }
-
-    /**
-     * Validate a payload.
      *
      * @return bool
      */
-    public function validate(): bool
+    public function validate(array $payload): bool
     {
+        $this->validator = Validator::make($payload, $this->rules());
+
         return $this->validator->passes();
     }
 

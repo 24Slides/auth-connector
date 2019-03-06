@@ -1,0 +1,48 @@
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a login request {"email":"test@test.com","password":"...","remember":false} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"success","user":{"name":"Test","email":"test@test.com","updated_at":"2018-07-30 00:00:00","created_at":"2018-07-01 00:00:00","deleted_at":null},"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9hdXRoLjI0c2xpZGVzLmxvY2FsOjgwODBcL3YxXC9sb2dpbiIsImlhdCI6MTUzMjk2MzMwNiwiZXhwIjoxNTMyOTY2OTA2LCJuYmYiOjE1MzI5NjMzMDYsImp0aSI6IlhDZTV6OG5Gc1RvalFEWXAiLCJzdWIiOjEsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjciLCJ1c2VySWQiOjF9.lyPcQ0abQK2xI6vSmHXTw77n_B4uTuPNzo04tftH7HQ"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a login request {"email":"test@test.com","password":"...","remember":false} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"error","message":"Username or password is incorrect"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a login request {"email":"test@testcom","password":"...","remember":false} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 422  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"error","message":"{\"email\":[\"The email must be a valid email address.\"]}","status_code":422} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a unsafeLogin request {"email":"test@test.com","remember":false} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"success","user":{"name":"Test","email":"test@test.com","updated_at":"2018-07-30 00:00:00","created_at":"2018-07-01 00:00:00","deleted_at":null},"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9hdXRoLjI0c2xpZGVzLmxvY2FsOjgwODBcL3YxXC9sb2dpbiIsImlhdCI6MTUzMjk2MzMwNiwiZXhwIjoxNTMyOTY2OTA2LCJuYmYiOjE1MzI5NjMzMDYsImp0aSI6IlhDZTV6OG5Gc1RvalFEWXAiLCJzdWIiOjEsInBydiI6IjIzYmQ1Yzg5NDlmNjAwYWRiMzllNzAxYzQwMDg3MmRiN2E1OTc2ZjciLCJ1c2VySWQiOjF9.lyPcQ0abQK2xI6vSmHXTw77n_B4uTuPNzo04tftH7HQ"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a unsafeLogin request {"email":"test@test.com","remember":false} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"error","message":"Username or password is incorrect"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a login request {"email":"test@testcom","password":"...","remember":false} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 422  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"error","message":"{\"email\":[\"The email must be a valid email address.\"]}","status_code":422} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a register request {"userId":1,"name":"Test","email":"test@test.com","password":"...","country":"US"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"success","user":{"name":"Test","email":"test@test.com","updated_at":"2018-07-30 15:27:48","created_at":"2018-07-30 15:27:48"},"token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC9hdXRoLjI0c2xpZGVzLmxvY2FsOjgwODBcL3YxXC9yZWdpc3RlciIsImlhdCI6MTUzMjk2NDQ2OCwiZXhwIjoxNTMyOTY4MDY4LCJuYmYiOjE1MzI5NjQ0NjgsImp0aSI6InR3bEdHWEljS3BQWGl0MlIiLCJzdWIiOjU0LCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3IiwidXNlcklkIjoxfQ.0bYHOz5LTzqGbaZJSX_7e7Eqm8no2M95ur1_CJO3ARw"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a register request {"userId":1,"name":"Test","email":"test@test.com","password":"...","country":"US"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 422  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"error","message":"{\"email\":[\"The email has already been taken.\"]}","status_code":422} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a forgot request {"email":"test@test.com"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"success"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a forgot request {"email":"test@test.com"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"error"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a validateReset request {"token":"VrR1nIUIC7DDSJtd","email":"test@test.com"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"success","user":{"name":"Test","email":"test@test.com","updated_at":"2018-07-30 00:00:00","created_at":"2018-07-01 00:00:00","deleted_at":null}} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a validateReset request {"token":"EBXbU0e70raLRd8n","email":"test@test.com"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"error"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a reset request {"token":"PEH7NNf75EBgsz8H","email":"test@test.com","password":"...","confirmation":"..."} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"success","user":{"name":"Test","email":"test@test.com","updated_at":"2018-07-30 00:00:00","created_at":"2018-07-01 00:00:00","deleted_at":null}} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a reset request {"token":"tgp1nYzp7LlhJToj","email":"test@test.com","password":"...","confirmation":"..."} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"error"} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a update request {"id":1,"attributes":{"id":1,"name":"Test","email":"test@test.com","password":"...","country":"US"}} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"success","user":{"name":"Test","email":"test@test.com","updated_at":"2018-07-30 00:00:00","created_at":"2018-07-01 00:00:00","deleted_at":null}} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Sending a update request {"id":0,"attributes":{"name":"Test","email":"test@test.com","password":"...","country":"US"}} 
+[2019-03-06 13:17:25] testing.DEBUG: [Connector] Got a response. Status: 200  
+[2019-03-06 13:17:25] testing.DEBUG: [Connector]  {"status":"error"} 

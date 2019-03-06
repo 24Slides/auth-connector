@@ -34,11 +34,13 @@ class UserSyncWebhook extends Webhook
     /**
      * Handle the incoming request.
      *
+     * @param array $payload
+     *
      * @return void
      */
-    public function handle()
+    public function handle(array $payload)
     {
-        $user = array_get($this->payload, 'user');
+        $user = array_get($payload, 'user');
 
         $syncer = new Syncer(null, [Syncer::MODE_PASSWORDS]);
         $syncer->setForeigners(collect([

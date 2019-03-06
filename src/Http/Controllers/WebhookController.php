@@ -35,10 +35,12 @@ class WebhookController extends \Illuminate\Routing\Controller
      * @param string $key
      * @param Request $request
      *
+     * @return array|null
+     *
      * @throws \Slides\Connector\Auth\Exceptions\WebhookValidationException
      */
     public function __invoke(string $key, Request $request)
     {
-        $this->dispatcher->handle($key, $request->all());
+        return $this->dispatcher->handle($key, $request->all());
     }
 }
