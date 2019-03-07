@@ -50,17 +50,19 @@ class AssessmentService
      */
     protected function retrieveUniqueRemotes(array $remoteKeys)
     {
-        return $this->users->withTemporaryTable('unknownRemotesTable',
-            function(\Illuminate\Database\Schema\Blueprint $table) {
+        return $this->users->withTemporaryTable('remoteUserKeys',
+            function(\Illuminate\Database\Schema\Blueprint $table) use ($remoteKeys) {
                 $table->bigInteger('id');
             },
-            array_map(function($key) {
-                return ['id' => $key];
-            }, $remoteKeys),
-            function(\Illuminate\Database\Eloquent\Builder $query, $table) {
-                return $query->rightJoin($table, $table . '.id', $this->users->table() . '.remote_id')
-                    ->whereNull($this->users->table() . '.id')
-                    ->pluck($table . '.id');
+            function(\Illuminate\Database\Query\Builder $query, string $table) use ($remoteKeys) {
+                // This is not a good approach, but using builder it significantly decreases performance,
+                // because builder users collections all the time.
+                \Illuminate\Support\Facades\DB::insert('INSERT INTO ' . $table . ' VALUES (' . implode('),(', $remoteKeys) . ')');
+
+                return $query->whereNotIn('id', function(\Illuminate\Database\Query\Builder $subQuery) {
+                    $subQuery->select('remote_id')
+                        ->from($this->users->table());
+                })->pluck('id');
             }
         );
     }

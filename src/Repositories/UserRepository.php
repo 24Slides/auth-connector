@@ -40,21 +40,18 @@ class UserRepository
      *
      * @param string $name
      * @param \Closure $table
-     * @param array $data
      * @param \Closure $query
      *
      * @return mixed
      */
-    public function withTemporaryTable(string $name, \Closure $table, array $data, \Closure $query)
+    public function withTemporaryTable(string $name, \Closure $table, \Closure $query)
     {
         \Illuminate\Support\Facades\Schema::create($name, function(\Illuminate\Database\Schema\Blueprint $callback) use ($table) {
             $table($callback);
             $callback->temporary();
         });
 
-        \Illuminate\Support\Facades\DB::table($name)->insert($data);
-
-        $results = $query($this->query(), $name);
+        $results = $query(\Illuminate\Support\Facades\DB::table($name), $name);
 
         \Illuminate\Support\Facades\Schema::dropIfExists($name);
 
