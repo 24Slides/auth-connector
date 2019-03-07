@@ -33,10 +33,7 @@ class AssessUsersWebhook extends Webhook
      */
     protected function rules(): array
     {
-        return [
-            'keys' => 'required|array',
-            'keys.*' => 'int'
-        ];
+        return [];
     }
     
     /**
