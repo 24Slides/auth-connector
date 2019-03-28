@@ -12,6 +12,11 @@ use Slides\Connector\Auth\Repositories\UserRepository;
 class AssessmentService
 {
     /**
+     * The number of placeholders per query in MySQL.
+     */
+    const MAX_PLACEHOLDERS_PER_QUERY = 50000;
+
+    /**
      * @var UserRepository
      */
     protected $users;
@@ -56,8 +61,10 @@ class AssessmentService
             },
             function(\Illuminate\Database\Query\Builder $query, string $table) use ($remoteKeys) {
                 // This is not a good approach, but using builder it significantly decreases performance,
-                // because builder users collections all the time.
-                \Illuminate\Support\Facades\DB::insert('INSERT INTO ' . $table . ' VALUES (' . implode('),(', $remoteKeys) . ')');
+                // because builder uses collections all the time.
+                foreach (array_chunk($remoteKeys, static::MAX_PLACEHOLDERS_PER_QUERY) as $keys) {
+                    \Illuminate\Support\Facades\DB::insert('INSERT INTO ' . $table . ' VALUES (' . implode('),(', $keys) . ')');
+                }
 
                 return $query->whereNotIn('id', function(\Illuminate\Database\Query\Builder $subQuery) {
                     $subQuery->select('remote_id')
