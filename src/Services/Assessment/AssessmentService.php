@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth\Services\Assessment;
 
+use Illuminate\Support\Collection;
 use Slides\Connector\Auth\Repositories\UserRepository;
 
 /**
@@ -11,11 +12,6 @@ use Slides\Connector\Auth\Repositories\UserRepository;
  */
 class AssessmentService
 {
-    /**
-     * The number of placeholders per query in MySQL.
-     */
-    const MAX_PLACEHOLDERS_PER_QUERY = 50000;
-
     /**
      * @var UserRepository
      */
@@ -40,9 +36,11 @@ class AssessmentService
      */
     public function differentiateUsers(array $keys): array
     {
+        $localKeys = $this->users->findRemoteIds();
+
         return [
-            'uniqueTenantUsers' => $this->retrieveUniqueLocals($keys),
-            'uniqueServiceUserKeys' => $this->retrieveUniqueRemotes($keys)
+            'uniqueTenantUsers' => $this->retrieveUniqueLocals($keys, $localKeys),
+            'uniqueServiceUserKeys' => $this->retrieveUniqueRemotes($keys, $localKeys)
         ];
     }
 
@@ -50,42 +48,27 @@ class AssessmentService
      * Retrieve remote users that not exist locally.
      *
      * @param array $remoteKeys
+     * @param Collection $localKeys
      *
-     * @return \Illuminate\Support\Collection
+     * @return array
      */
-    protected function retrieveUniqueRemotes(array $remoteKeys)
+    protected function retrieveUniqueRemotes(array $remoteKeys, Collection $localKeys): array
     {
-        return $this->users->withTemporaryTable('remoteUserKeys',
-            function(\Illuminate\Database\Schema\Blueprint $table) use ($remoteKeys) {
-                $table->bigInteger('id');
-            },
-            function(\Illuminate\Database\Query\Builder $query, string $table) use ($remoteKeys) {
-                // This is not a good approach, but using builder it significantly decreases performance,
-                // because builder uses collections all the time.
-                foreach (array_chunk($remoteKeys, static::MAX_PLACEHOLDERS_PER_QUERY) as $keys) {
-                    \Illuminate\Support\Facades\DB::insert('INSERT INTO ' . $table . ' VALUES (' . implode('),(', $keys) . ')');
-                }
-
-                return $query->whereNotIn('id', function(\Illuminate\Database\Query\Builder $subQuery) {
-                    $subQuery->select('remote_id')
-                        ->from($this->users->table());
-                })->pluck('id');
-            }
-        );
+        return array_diff($remoteKeys, $localKeys->toArray());
     }
 
     /**
      * Retrieve local users that not exist remotely.
      *
      * @param array $remoteKeys
+     * @param Collection $localKeys
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection
      */
-    protected function retrieveUniqueLocals(array $remoteKeys)
+    protected function retrieveUniqueLocals(array $remoteKeys, Collection $localKeys): Collection
     {
-        return $this->users->query()
-            ->whereNotIn('remote_id', $remoteKeys)
-            ->orWhereNull('remote_id')
-            ->get();
+        $uniqueKeys = $localKeys->diff($remoteKeys);
+
+        return $this->users->many($uniqueKeys->keys()->all());
     }
 }
