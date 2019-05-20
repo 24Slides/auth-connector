@@ -169,11 +169,12 @@ class ManageUsers extends Command
      */
     protected function retrieveUsers(array $conditions, bool $onlyTrashed = false)
     {
+        /** @var \Illuminate\Database\Query\Builder $query */
         $query = \Illuminate\Support\Facades\Auth::getProvider()->createModel()
             ->newQuery();
 
         foreach ($conditions as $column => $value) {
-            $query->where($column, $value);
+            $query->whereIn($column, $value);
         }
 
         if($onlyTrashed) {
