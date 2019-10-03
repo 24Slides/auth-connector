@@ -48,7 +48,12 @@ class Cache
      */
     public function set(string $key, $value)
     {
-        Redis::connection('authService')->set('connector:' . $key, $value);
+        try {
+            Redis::connection('authService')->set('connector:' . $key, $value);
+        }
+        catch(\Exception $e) {
+            \Illuminate\Support\Facades\Log::error($e->getMessage());
+        }
     }
 
     /**
@@ -60,6 +65,14 @@ class Cache
      */
     public function get(string $key)
     {
-        return Redis::connection('authService')->get('connector:' . $key);
+        try {
+            Redis::connection('authService')->get('connector:' . $key);
+        }
+        catch(\Exception $e) {
+            \Illuminate\Support\Facades\Log::error($e->getMessage());
+            return;
+        }
+
+        return null;
     }
 }
