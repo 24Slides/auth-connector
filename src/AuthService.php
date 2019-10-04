@@ -377,7 +377,7 @@ class AuthService
     /**
      * Store/retrieve a parameter from the cache.
      *
-     * @param string|null $key
+     * @param string $key
      * @param mixed $value
      *
      * @return Cache|void
@@ -394,24 +394,24 @@ class AuthService
             return $cache->get($key);
         }
 
-        $cache->set($key, $value);
+        $cache->set($key, null, $value);
     }
 
     /**
      * Store/retrieve a user's parameter from the cache.
      *
      * @param int $remoteId The remote user ID.
-     * @param int $key
+     * @param string|null $key
      * @param mixed $value
      *
-     * @return Cache|void
+     * @return Cache|mixed|void
      */
     public function userCache(int $remoteId, string $key = null, $value = null)
     {
         $cache = new Cache();
 
         if(!func_num_args()) {
-            return $cache;
+            return $cache->getUserParams($remoteId);
         }
 
         if(func_num_args() === 1) {

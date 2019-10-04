@@ -135,10 +135,9 @@ You can find an example of handlers implementations [here](examples/auth-handler
 Connector provides the possibility to disable the remote service by setting `SERVICE_AUTH_ENALBED=false`.
 It means authentication operations like login, logout, password reset will be processed only locally.
 
-### Implementing auth logic
+### Authentication-related logic
 
-To make authentication service work, you need to replace your own logic.
-The following pointsshould be replaced:
+The following parts of your application should be replaced with the functionality provided by package.
 
 - Registration
 - Login
@@ -192,6 +191,69 @@ public function sendPasswordResetNotification(string $token)
 
 ```php
 Route::get('password/reset/{token}/{email}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+```
+
+### Shared cache between services
+
+#### Configuration
+
+##### Step 1. Configure Redis connection
+
+Add the following to your `config/database.php`:
+
+```php
+'redis' => 
+    ...
+    
+    'authService' => [
+        'host' => env('SERVICE_AUTH_REDIS_HOST', '127.0.0.1'),
+        'password' => env('SERVICE_AUTH_REDIS_PASSWORD', null),
+        'port' => env('SERVICE_AUTH_REDIS_PORT', 6379),
+        'database' => env('SERVICE_AUTH_REDIS_CACHE_DB', 1),
+    ]
+],
+```
+
+##### Step 2. Add environment variables
+
+Add the following environment variables. Ask vendor for their values.
+
+```
+SERVICE_AUTH_REDIS_HOST=
+SERVICE_AUTH_REDIS_PASSWORD=
+SERVICE_AUTH_REDIS_PORT=
+SERVICE_AUTH_REDIS_CACHE_DB=1
+```
+
+#### Usage
+
+The API behind this feature is pretty straightforward as you would work with the Laravel `Cache` facade.
+
+Global key-value parameters:
+
+```php
+AuthService::cache('the-global-param', 'the-param-value');
+AuthService::cache()->set('the-global-param', 'the-param-value');
+
+AuthService::cache('the-global-param'); // the-param-value
+AuthService::cache()->get('the-param-param'); // the-global-value
+```
+
+Store / retrieve object parameters and values.
+
+```php
+AuthService::cache()->set('emailing', 'sendOffers', true);
+AuthService::cache()->get('emailing', 'sendOffers'); // true
+```
+
+Store / retrieve user-related parameters.
+
+```php
+AuthService::userCache($user->retrieveRemoteId(), 'receiveOffers', true);
+AuthService::userCache($user->retrieveRemoteId(), 'receiveOffers'); // true
+
+// Get all user's parameters
+AuthService::userCache($user->retrieveRemoteId()); // ['receiveOffers' => true]
 ```
 
 [ico-version]: https://poser.pugx.org/24slides/auth-connector/v/stable?format=flat-square
