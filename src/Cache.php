@@ -62,6 +62,8 @@ class Cache
      */
     public function set(string $key, ?string $field, $value)
     {
+        $value = $this->castValueToString($value);
+
         $this->ensure(function(Connection $redis) use ($key, $field, $value) {
             $field
                 ? $redis->hset('connector:' . $key, $field, $value)
@@ -79,13 +81,15 @@ class Cache
      */
     public function get(string $key, string $field = null)
     {
-        return $this->ensure(function(Connection $redis) use ($key, $field) {
+        $output = $this->ensure(function(Connection $redis) use ($key, $field) {
             return $field
                 ? $redis->hget('connector:' . $key, $field)
                 : $redis->get('connector:' . $key);
         }, function() {
             return null;
         });
+
+        return $this->castValueFromString($output);
     }
 
     /**
@@ -126,5 +130,41 @@ class Cache
         }
 
         return $output ?? false;
+    }
+
+    /**
+     * Case value to string.
+     *
+     * @param mixed $value
+     *
+     * @return string
+     */
+    protected function castValueToString($value)
+    {
+        if(is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        return $value;
+    }
+
+    /**
+     * Case value from string.
+     *
+     * @param mixed $value
+     *
+     * @return mixed
+     */
+    protected function castValueFromString($value)
+    {
+        if($value === 'true' || $value === 'false') {
+            return $value === 'true' ? true : false;
+        }
+
+        if($value === '') {
+            return null;
+        }
+
+        return $value;
     }
 }

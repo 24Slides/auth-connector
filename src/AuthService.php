@@ -410,11 +410,11 @@ class AuthService
     {
         $cache = new Cache();
 
-        if(!func_num_args()) {
+        if(func_num_args() === 1) {
             return $cache->getUserParams($remoteId);
         }
 
-        if(func_num_args() === 1) {
+        if(func_num_args() === 2) {
             return $cache->getUserParam($remoteId, $key);
         }
 
