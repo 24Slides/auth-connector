@@ -64,6 +64,11 @@ class Cache
     {
         $value = $this->castValueToString($value);
 
+        \Illuminate\Support\Facades\Log::debug(
+            '[Connector] Storing a parameter in cache',
+            compact('key', 'field', 'value')
+        );
+
         $this->ensure(function(Connection $redis) use ($key, $field, $value) {
             $field
                 ? $redis->hset('connector:' . $key, $field, $value)
@@ -88,6 +93,11 @@ class Cache
         }, function() {
             return null;
         });
+
+        \Illuminate\Support\Facades\Log::debug(
+            '[Connector] Getting a parameter from cache',
+            compact('key', 'field', 'output')
+        );
 
         return $this->castValueFromString($output);
     }
@@ -123,6 +133,7 @@ class Cache
         }
         catch(\Exception $e) {
             \Illuminate\Support\Facades\Log::error($e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
 
             if($fallback instanceof \Closure) {
                 $output = $fallback($e);
