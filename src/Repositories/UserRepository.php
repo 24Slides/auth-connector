@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth\Repositories;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
 
 /**
@@ -36,25 +37,26 @@ class UserRepository
     }
 
     /**
-     * Make a query using a temporary table.
+     * Returns all remote IDs from users table
      *
-     * @param string $name
-     * @param \Closure $table
-     * @param \Closure $query
-     *
-     * @return mixed
+     * @return \Illuminate\Support\Collection
      */
-    public function withTemporaryTable(string $name, \Closure $table, \Closure $query)
+    public function findRemoteIds()
     {
-        \Illuminate\Support\Facades\Schema::create($name, function(\Illuminate\Database\Schema\Blueprint $callback) use ($table) {
-            $table($callback);
-            $callback->temporary();
-        });
+        return \Illuminate\Support\Facades\DB::table($this->table())->pluck('remote_id', 'id');
+    }
 
-        $results = $query(\Illuminate\Support\Facades\DB::table($name), $name);
-
-        \Illuminate\Support\Facades\Schema::dropIfExists($name);
-
-        return $results;
+    /**
+     * Returns users with given IDs
+     *
+     * @param array $ids List of entity IDs to be queried
+     *
+     * @return \Illuminate\Database\Eloquent\Collection|Model[]
+     */
+    public function many(array $ids)
+    {
+        return $this->query()
+            ->whereKey($ids)
+            ->get();
     }
 }
