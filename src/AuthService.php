@@ -375,6 +375,53 @@ class AuthService
     }
 
     /**
+     * Store/retrieve a parameter from the cache.
+     *
+     * @param string $key
+     * @param mixed $value
+     *
+     * @return Cache|void
+     */
+    public function cache(string $key = null, $value = null)
+    {
+        $cache = new Cache();
+
+        if(!func_num_args()) {
+            return $cache;
+        }
+
+        if(func_num_args() === 1) {
+            return $cache->get($key);
+        }
+
+        $cache->set($key, null, $value);
+    }
+
+    /**
+     * Store/retrieve a user's parameter from the cache.
+     *
+     * @param int $remoteId The remote user ID.
+     * @param string|null $key
+     * @param mixed $value
+     *
+     * @return Cache|mixed|void
+     */
+    public function userCache(int $remoteId, string $key = null, $value = null)
+    {
+        $cache = new Cache();
+
+        if(func_num_args() === 1) {
+            return $cache->getUserParams($remoteId);
+        }
+
+        if(func_num_args() === 2) {
+            return $cache->getUserParam($remoteId, $key);
+        }
+
+        $cache->setUserParam($remoteId, $key, $value);
+    }
+
+    /**
      * Performs a callback logic within database transaction.
      *
      * @param \Closure $callback
