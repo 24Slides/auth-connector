@@ -2,6 +2,8 @@
 
 namespace Slides\Connector\Auth;
 
+use Slides\Connector\Auth\Clients\Mandrill\Emailer;
+
 /**
  * Class ServiceProvider
  *
@@ -126,6 +128,14 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
         $this->app->bind('authService', function($app) {
             return $app[AuthService::class];
+        });
+
+        $this->app->singleton(Emailer::class, function (\Illuminate\Foundation\Application $app) {
+            return new Emailer($app->make(\Slides\Connector\Auth\Clients\Mandrill\Client::class));
+        });
+
+        $this->app->bind('emailer', function ($app) {
+            return $app[Emailer::class];
         });
     }
 

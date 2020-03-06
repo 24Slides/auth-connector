@@ -4,6 +4,7 @@ namespace Slides\Connector\Auth\Clients\Mandrill\Builders;
 
 use Exception;
 use Illuminate\Support\Collection;
+use Slides\Connector\Auth\Clients\Mandrill\Emailer;
 use Slides\Connector\Auth\Clients\Mandrill\VariableResolver;
 
 /**
@@ -13,6 +14,11 @@ use Slides\Connector\Auth\Clients\Mandrill\VariableResolver;
  */
 class Email
 {
+    /**
+     * @var Emailer
+     */
+    protected $mailer;
+
     /**
      * The variable resolver.
      *
@@ -40,33 +46,56 @@ class Email
     /**
      * @var Collection
      */
-    protected $users;
+    protected $recipients;
 
     /**
      * Email constructor.
      *
-     * @param string $template
-     * @param array $recipients
-     * @param array $variables
+     * @param Emailer $mailer
      */
-    public function __construct(string $template, array $recipients, array $variables)
+    public function __construct(Emailer $mailer)
     {
-        $this->template = $template;
-        $this->variables = $variables;
-
-        $this->users = collect($recipients);
+        $this->mailer = $mailer;
 
         $this->resolver = app(config('connector.credentials.clients.mandrill.resolver'));
     }
 
     /**
-     * Retrieve users.
+     * Retrieve recipients.
      *
      * @return Collection
      */
-    public function getUsers(): Collection
+    public function getRecipients(): Collection
     {
-        return $this->users;
+        return $this->recipients;
+    }
+
+    /**
+     * Set the email template.
+     *
+     * @param string $template
+     *
+     * @return $this
+     */
+    public function template(string $template)
+    {
+        $this->template = $template;
+
+        return $this;
+    }
+
+    /**
+     * Set additional variables.
+     *
+     * @param array $variables
+     *
+     * @return $this
+     */
+    public function variables(array $variables)
+    {
+        $this->variables = $variables;
+
+        return $this;
     }
 
     /**
@@ -76,7 +105,7 @@ class Email
      *
      * @return static
      */
-    public function setSubject(string $subject)
+    public function subject(string $subject)
     {
         $this->attributes['subject'] = $subject;
 
@@ -91,12 +120,26 @@ class Email
      *
      * @return static
      */
-    public function setFrom(string $email, ?string $name = null)
+    public function from(string $email, ?string $name = null)
     {
         $this->attributes['from'] = [
             'email' => $email,
             'name' => $name
         ];
+
+        return $this;
+    }
+
+    /**
+     * Set the email recipients.
+     *
+     * @param array $recipients
+     *
+     * @return static
+     */
+    public function recipients(array $recipients)
+    {
+        $this->recipients = collect($recipients);
 
         return $this;
     }
@@ -108,31 +151,11 @@ class Email
      *
      * @return static
      */
-    public function setResolver(VariableResolver $resolver)
+    public function resolver(VariableResolver $resolver)
     {
         $this->resolver = $resolver;
 
         return $this;
-    }
-
-    /**
-     * Build the email to be sent.
-     *
-     * @param Collection|null $users
-     *
-     * @return array
-     */
-    public function build(Collection $users = null): array
-    {
-        if (is_null($users)) {
-            $users = $this->users;
-        }
-
-        return array_merge([
-            'template' => $this->template,
-            'recipients' => $this->buildRecipients($users),
-            'variables' => $this->buildVariables($users),
-        ], $this->attributes);
     }
 
     /**
@@ -144,21 +167,67 @@ class Email
      */
     public function chunk(int $size = 1000): array
     {
-        $chunks = $this->users->chunk($size);
+        $chunks = $this->recipients->chunk($size);
 
         return $chunks->map([$this, 'build'])->toArray();
     }
 
     /**
-     * Build the message recipients.
+     * Send the email.
      *
-     * @param Collection $users
+     * @param Collection $recipients
+     *
+     * @return mixed
+     */
+    public function send(Collection $recipients = null)
+    {
+        if (is_null($recipients)) {
+            $recipients = $this->recipients;
+        }
+
+        return $this->mailer->send($this->build($recipients));
+    }
+
+    /**
+     * Chunk recipients before sending.
+     *
+     * @param int $size
+     *
+     * @return \Generator
+     */
+    public function sendChunk(int $size = 1000)
+    {
+        foreach ($this->recipients->chunk($size) as $chunk) {
+            yield $this->send($chunk);
+        }
+    }
+
+    /**
+     * Build the email to be sent.
+     *
+     * @param Collection|null $recipients
      *
      * @return array
      */
-    protected function buildRecipients(Collection $users): array
+    protected function build(Collection $recipients): array
     {
-        return $users->map(function (string $email) {
+        return array_merge([
+            'template' => $this->template,
+            'recipients' => $this->buildRecipients($recipients),
+            'variables' => $this->buildVariables($recipients),
+        ], $this->attributes);
+    }
+
+    /**
+     * Build the message recipients.
+     *
+     * @param Collection $recipients
+     *
+     * @return array
+     */
+    protected function buildRecipients(Collection $recipients): array
+    {
+        return $recipients->map(function (string $email) {
             return [
                 'email' => $email,
                 'type' => 'to'
@@ -167,15 +236,15 @@ class Email
     }
 
     /**
-     * Build the variables for given collection of users.
+     * Build the variables for given collection of recipients.
      *
-     * @param Collection $users
+     * @param Collection $recipients
      *
      * @return array
      */
-    protected function buildVariables(Collection $users): array
+    protected function buildVariables(Collection $recipients): array
     {
-        return $users->map(function (string $email) {
+        return $recipients->map(function (string $email) {
             return [
                 'rcpt' => $email,
                 'vars' => $this->userVariables($email)
