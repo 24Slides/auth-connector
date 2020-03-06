@@ -71,7 +71,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             \Slides\Connector\Auth\Commands\SyncUsers::class,
             \Slides\Connector\Auth\Commands\SyncExport::class,
             \Slides\Connector\Auth\Commands\SyncImport::class,
-            \Slides\Connector\Auth\Commands\ManageUsers::class
+            \Slides\Connector\Auth\Commands\ManageUsers::class,
+            \Slides\Connector\Auth\Clients\Mandrill\Commands\Send::class
         ]);
     }
 
