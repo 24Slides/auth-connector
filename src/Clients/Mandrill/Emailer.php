@@ -19,6 +19,11 @@ class Emailer
     protected $client;
 
     /**
+     * @var VariableResolver
+     */
+    protected $resolver;
+
+    /**
      * Email constructor.
      *
      * @param Client $client
@@ -35,11 +40,25 @@ class Emailer
      *
      * @return static
      */
-    public function token(string $secret)
+    public function setToken(string $secret)
     {
         return new static(new Client([], [
             'secretKey' => $secret
         ]));
+    }
+
+    /**
+     * Set variable resolver instance.
+     *
+     * @param VariableResolver $resolver
+     *
+     * @return static
+     */
+    public function setResolver(VariableResolver $resolver)
+    {
+        $this->resolver = $resolver;
+
+        return $this;
     }
 
     /**
@@ -68,6 +87,10 @@ class Emailer
 
         if (!method_exists($email, $name)) {
             throw new \BadMethodCallException('Method ' . $name . ' is not defined.');
+        }
+
+        if ($this->resolver) {
+            $email->resolver($this->resolver);
         }
 
         return call_user_func([$email, $name], $value);
