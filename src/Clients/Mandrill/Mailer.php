@@ -113,11 +113,11 @@ class Mailer
     /**
      * Begin the process of mailing a mail class instance.
      *
-     * @param array $recipients
+     * @param $recipients
      *
      * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
      */
-    public function recipients(array $recipients)
+    public function recipients($recipients)
     {
         return $this->forward(__FUNCTION__, $recipients);
     }

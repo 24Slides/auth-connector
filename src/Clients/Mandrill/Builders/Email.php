@@ -131,11 +131,11 @@ class Email
     /**
      * Set the email recipients.
      *
-     * @param array $recipients
+     * @param mixed $recipients
      *
      * @return static
      */
-    public function recipients(array $recipients)
+    public function recipients($recipients)
     {
         $this->recipients = collect($recipients);
 
