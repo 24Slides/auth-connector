@@ -26,6 +26,7 @@ class Send extends Command
                            {--r|recipients=   : The list of recipients or name of the file with recipients }
                            {--t|template=     : Name of the email template }
                            {--p|params=       : The list of parameters for an email }
+                           {--c|context=      : The list of context variables }
                            {--f|from=         : The sender email address and name }
                            {--apiToken=       : The Mandrill API token }
                            {--s|subject=      : The message subject }';
@@ -85,11 +86,9 @@ class Send extends Command
         }
 
         $builder = $this->mailer->template($template)
-            ->recipients($recipients);
-
-        if ($params = $this->option('params')){
-            $builder->variables(explode(',', $params));
-        }
+            ->recipients($recipients)
+            ->variables(ConsoleHelper::stringToArray($this->option('params')))
+            ->context(ConsoleHelper::stringToArray($this->option('context')));
 
         if ($from = $this->option('from')) {
             $builder->from(...array_pad(explode(':', $from), 2, null));

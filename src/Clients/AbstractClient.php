@@ -169,7 +169,7 @@ abstract class AbstractClient
 
         // Validate a response
         if (!$request->success()) {
-            throw new RuntimeException($response);
+            throw new RuntimeException(json_encode($response, JSON_PRETTY_PRINT));
         }
 
         return $response;

@@ -39,6 +39,13 @@ class Email
     protected $attributes = [];
 
     /**
+     * The list of context variables.
+     *
+     * @var array
+     */
+    protected $context = [];
+
+    /**
      * @var string
      */
     protected $template;
@@ -149,17 +156,17 @@ class Email
     }
 
     /**
-     * Chunk the recipients.
+     * Set email context.
      *
-     * @param int $size
+     * @param array $context
      *
-     * @return array
+     * @return static
      */
-    public function chunk(int $size = 1000): array
+    public function context(array $context)
     {
-        $chunks = $this->recipients->chunk($size);
+        $this->context = $context;
 
-        return $chunks->map([$this, 'build'])->toArray();
+        return $this;
     }
 
     /**
@@ -190,6 +197,20 @@ class Email
         foreach ($this->recipients->chunk($size) as $chunk) {
             yield $this->send($chunk);
         }
+    }
+
+    /**
+     * Chunk the recipients.
+     *
+     * @param int $size
+     *
+     * @return array
+     */
+    protected function chunk(int $size = 1000): array
+    {
+        $chunks = $this->recipients->chunk($size);
+
+        return $chunks->map([$this, 'build'])->toArray();
     }
 
     /**
@@ -254,7 +275,7 @@ class Email
     protected function userVariables(string $email): array
     {
         if (!$this->resolverInstance) {
-            $this->resolverInstance = new $this->resolver($this->recipients);
+            $this->resolverInstance = new $this->resolver($this->recipients, $this->context);
         }
 
         return array_map(function ($variable) use ($email) {
