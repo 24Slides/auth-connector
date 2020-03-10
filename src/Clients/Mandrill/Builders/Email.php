@@ -22,9 +22,14 @@ class Email
     /**
      * The variable resolver.
      *
-     * @var VariableResolver
+     * @var string
      */
     protected $resolver;
+
+    /**
+     * @var VariableResolver
+     */
+    protected $resolverInstance;
 
     /**
      * The additional attributes that should be added to email.
@@ -52,13 +57,14 @@ class Email
      * Email constructor.
      *
      * @param Mailer $mailer
-     * @param VariableResolver $resolver
+     * @param string $resolver
      */
-    public function __construct(Mailer $mailer, VariableResolver $resolver = null)
+    public function __construct(Mailer $mailer, string $resolver = null)
     {
         $this->mailer = $mailer;
+        $this->recipients = new Collection();
 
-        $this->resolver = $resolver ?: app(config('connector.credentials.clients.mandrill.resolver'));
+        $this->resolver = $resolver ?: config('connector.credentials.clients.mandrill.resolver');
     }
 
     /**
@@ -247,8 +253,12 @@ class Email
      */
     protected function userVariables(string $email): array
     {
+        if (!$this->resolverInstance) {
+            $this->resolverInstance = new $this->resolver($this->recipients);
+        }
+
         return array_map(function ($variable) use ($email) {
-            return $this->resolver->resolve($variable, $email);
+            return $this->resolverInstance->resolve($variable, $email);
         }, $this->variables);
     }
 }

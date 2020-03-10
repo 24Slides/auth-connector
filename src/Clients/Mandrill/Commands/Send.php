@@ -85,8 +85,11 @@ class Send extends Command
         }
 
         $builder = $this->mailer->template($template)
-            ->recipients($recipients)
-            ->variables(ConsoleHelper::stringToArray($this->option('params')));
+            ->recipients($recipients);
+
+        if ($params = $this->option('params')){
+            $builder->variables(explode(',', $params));
+        }
 
         if ($from = $this->option('from')) {
             $builder->from(...array_pad(explode(':', $from), 2, null));

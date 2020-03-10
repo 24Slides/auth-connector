@@ -19,7 +19,7 @@ class Mailer
     protected $client;
 
     /**
-     * @var VariableResolver
+     * @var string
      */
     protected $resolver;
 
@@ -50,11 +50,11 @@ class Mailer
     /**
      * Set variable resolver instance.
      *
-     * @param VariableResolver $resolver
+     * @param string $resolver
      *
      * @return static
      */
-    public function setResolver(VariableResolver $resolver)
+    public function setResolver(string $resolver)
     {
         $this->resolver = $resolver;
 
