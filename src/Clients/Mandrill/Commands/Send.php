@@ -6,8 +6,8 @@ use Exception;
 use Illuminate\Console\Command;
 use Illuminate\Support\Fluent;
 use Illuminate\Support\Str;
-use Slides\Connector\Auth\Clients\Mandrill\Builders\Email;
 use Slides\Connector\Auth\Clients\Mandrill\Client;
+use Slides\Connector\Auth\Clients\Mandrill\Mailer;
 use Slides\Connector\Auth\Helpers\ConsoleHelper;
 
 /**
@@ -54,6 +54,18 @@ class Send extends Command
     ];
 
     /**
+     * @var Mailer
+     */
+    protected $mailer;
+
+    public function __construct(Mailer $mailer)
+    {
+        $this->mailer = $mailer;
+
+        parent::__construct();
+    }
+
+    /**
      * Execute the console command.
      *
      * @return void|null
@@ -64,31 +76,27 @@ class Send extends Command
     {
         $recipients = $this->resolveRecipients();
 
-        $this->client = new Client([], array_filter([
-            'secretKey' => $this->option('apiToken')
-        ]));
+        if ($secret = $this->option('apiToken')) {
+            $this->mailer = $this->mailer->setToken($secret);
+        }
 
         if (!$template = $this->option('template')) {
             throw new Exception('Please, pass the --template option');
         }
 
-        $builder = new Email($template, $recipients, ConsoleHelper::stringToArray($this->option('params')));
+        $builder = $this->mailer->template($template)
+            ->recipients($recipients)
+            ->variables(ConsoleHelper::stringToArray($this->option('params')));
 
         if ($from = $this->option('from')) {
-            list($email, $name) = array_pad(explode(':', $from), 2, null);
-
-            $builder->setFrom($email, $name);
+            $builder->from(...array_pad(explode(':', $from), 2, null));
         }
 
         if ($subject = $this->option('subject')) {
-            $builder->setSubject($subject);
+            $builder->subject($subject);
         }
 
-        $users = $builder->getUsers();
-
-        $this->info('Resolved ' . $users->count() . ' of ' . count($recipients) . ' recipients');
-
-        if (!$this->confirm('Do you want to send ' . $users->count() . ' ' . Str::plural('email', $users->count()) . '?', true)) {
+        if (!$this->confirm('Do you want to send ' . count($recipients) . ' emails?', true)) {
             return;
         }
 
@@ -96,14 +104,12 @@ class Send extends Command
 
         $bar = $this->output->createProgressBar();
         $this->output->newLine('2');
-        $bar->start($users->count());
+        $bar->start(count($recipients));
 
-        foreach ($builder->chunk(1000) as $email) {
-            $this->parseResponse(
-                $this->client->sendTemplate($email)
-            );
+        foreach ($builder->sendChunk(1000) as $response) {
+            $this->parseResponse($response);
 
-            $bar->advance(count($email['recipients']));
+            $bar->advance(count($response));
         }
 
         $bar->finish();
@@ -146,9 +152,9 @@ class Send extends Command
 
         $this->result['requests']++;
         $this->result['emails'] += $result->count();
-        $this->result['success'] += $result->where('status', 'sent')->count();
+        $this->result['success'] += $result->whereNotIn('status', ['rejected', 'invalid'])->count();
 
-        $this->result['failed'] = $result->where('status', '<>', 'sent')->pluck('email')->merge($this->result['failed'])->toArray();
+        $this->result['failed'] = $result->whereIn('status', ['rejected', 'invalid'])->pluck('email')->merge($this->result['failed'])->toArray();
         $this->result['responses'] .= json_encode($response) . PHP_EOL;
     }
 

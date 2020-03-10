@@ -45,7 +45,8 @@
         },
         "laravel": {
             "aliases": {
-                "AuthService": "Slides\\Connector\\Auth\\Facades\\AuthService"
+                "AuthService": "Slides\\Connector\\Auth\\Facades\\AuthService",
+                "MandrillMail": "Slides\\Connector\\Auth\\Facades\\MandrillMail"
             }
         }
     },

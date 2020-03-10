@@ -76,12 +76,12 @@ class Mailer
     /**
      * Forward calls to Email builder.
      *
-     * @param $name
-     * @param $value
+     * @param string $name
+     * @param array $arguments
      *
      * @return Email
      */
-    public function __set($name, $value)
+    public function __call(string $name , array $arguments)
     {
         $email = new Email($this);
 
@@ -93,6 +93,6 @@ class Mailer
             $email->resolver($this->resolver);
         }
 
-        return call_user_func([$email, $name], $value);
+        return call_user_func([$email, $name], ...$arguments);
     }
 }
