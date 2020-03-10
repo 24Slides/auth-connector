@@ -83,14 +83,10 @@ class Mailer
      */
     public function __call(string $name , array $arguments)
     {
-        $email = new Email($this);
+        $email = new Email($this, $this->resolver);
 
         if (!method_exists($email, $name)) {
             throw new \BadMethodCallException('Method ' . $name . ' is not defined.');
-        }
-
-        if ($this->resolver) {
-            $email->resolver($this->resolver);
         }
 
         return call_user_func([$email, $name], ...$arguments);

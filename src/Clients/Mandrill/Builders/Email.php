@@ -52,12 +52,13 @@ class Email
      * Email constructor.
      *
      * @param Mailer $mailer
+     * @param VariableResolver $resolver
      */
-    public function __construct(Mailer $mailer)
+    public function __construct(Mailer $mailer, VariableResolver $resolver = null)
     {
         $this->mailer = $mailer;
 
-        $this->resolver = app(config('connector.credentials.clients.mandrill.resolver'));
+        $this->resolver = $resolver ?: app(config('connector.credentials.clients.mandrill.resolver'));
     }
 
     /**
@@ -122,10 +123,7 @@ class Email
      */
     public function from(string $email, ?string $name = null)
     {
-        $this->attributes['from'] = [
-            'email' => $email,
-            'name' => $name
-        ];
+        $this->attributes['from'] = compact('email', 'name');
 
         return $this;
     }
