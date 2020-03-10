@@ -143,20 +143,6 @@ class Email
     }
 
     /**
-     * Set the variable resolver.
-     *
-     * @param VariableResolver $resolver
-     *
-     * @return static
-     */
-    public function resolver(VariableResolver $resolver)
-    {
-        $this->resolver = $resolver;
-
-        return $this;
-    }
-
-    /**
      * Chunk the recipients.
      *
      * @param int $size

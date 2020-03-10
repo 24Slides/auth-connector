@@ -62,6 +62,67 @@ class Mailer
     }
 
     /**
+     * Begin the process of mailing a mail class instance.
+     *
+     * @param string $template
+     *
+     * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
+     */
+    public function template(string $template)
+    {
+        return $this->forward(__FUNCTION__, $template);
+    }
+
+    /**
+     * Begin the process of mailing a mail class instance.
+     *
+     * @param array $variables
+     *
+     * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
+     */
+    public function variables(array $variables)
+    {
+        return $this->forward(__FUNCTION__, $variables);
+    }
+
+    /**
+     * Begin the process of mailing a mail class instance.
+     *
+     * @param string $subject
+     *
+     * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
+     */
+    public function subject(string $subject)
+    {
+        return $this->forward(__FUNCTION__, $subject);
+    }
+
+    /**
+     * Begin the process of mailing a mail class instance.
+     *
+     * @param string $email
+     * @param string $name
+     *
+     * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
+     */
+    public function from(string $email, ?string $name = null)
+    {
+        return $this->forward(__FUNCTION__, $email, $name);
+    }
+
+    /**
+     * Begin the process of mailing a mail class instance.
+     *
+     * @param array $recipients
+     *
+     * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
+     */
+    public function recipients(array $recipients)
+    {
+        return $this->forward(__FUNCTION__, $recipients);
+    }
+
+    /**
      * Send the email.
      *
      * @param array $attributes
@@ -74,21 +135,21 @@ class Mailer
     }
 
     /**
-     * Forward calls to Email builder.
+     * Forward call to email builder instance.
      *
-     * @param string $name
-     * @param array $arguments
+     * @param string $method
+     * @param mixed ...$arguments
      *
      * @return Email
      */
-    public function __call(string $name , array $arguments)
+    protected function forward(string $method, ...$arguments)
     {
-        $email = new Email($this, $this->resolver);
+        $builder = new Email($this, $this->resolver);
 
-        if (!method_exists($email, $name)) {
-            throw new \BadMethodCallException('Method ' . $name . ' is not defined.');
+        if (!method_exists($builder, $method)) {
+            throw new \BadMethodCallException('Method ' . $method . ' is not defined.');
         }
 
-        return call_user_func([$email, $name], ...$arguments);
+        return call_user_func([$builder, $method], ...$arguments);
     }
 }
