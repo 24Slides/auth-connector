@@ -11,7 +11,7 @@ use Slides\Connector\Auth\Clients\Mandrill\Builders\Email;
  *
  * @package Slides\Connector\Auth\Clients\Mandrill
  */
-class Emailer
+class Mailer
 {
     /**
      * @var Client

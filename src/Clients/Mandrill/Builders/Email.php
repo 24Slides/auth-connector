@@ -4,7 +4,7 @@ namespace Slides\Connector\Auth\Clients\Mandrill\Builders;
 
 use Exception;
 use Illuminate\Support\Collection;
-use Slides\Connector\Auth\Clients\Mandrill\Emailer;
+use Slides\Connector\Auth\Clients\Mandrill\Mailer;
 use Slides\Connector\Auth\Clients\Mandrill\VariableResolver;
 
 /**
@@ -15,7 +15,7 @@ use Slides\Connector\Auth\Clients\Mandrill\VariableResolver;
 class Email
 {
     /**
-     * @var Emailer
+     * @var Mailer
      */
     protected $mailer;
 
@@ -51,9 +51,9 @@ class Email
     /**
      * Email constructor.
      *
-     * @param Emailer $mailer
+     * @param Mailer $mailer
      */
-    public function __construct(Emailer $mailer)
+    public function __construct(Mailer $mailer)
     {
         $this->mailer = $mailer;
 

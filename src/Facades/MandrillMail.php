@@ -7,13 +7,13 @@ namespace Slides\Connector\Auth\Facades;
  *
  * @package Slides\Connector\Auth\Facades
  */
-class Email extends \Illuminate\Support\Facades\Facade
+class MandrillMail extends \Illuminate\Support\Facades\Facade
 {
     /**
      * @inheritdoc
      */
     protected static function getFacadeAccessor()
     {
-        return 'emailer';
+        return 'mandrill';
     }
 }
