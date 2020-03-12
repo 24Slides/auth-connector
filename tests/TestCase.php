@@ -7,7 +7,7 @@ abstract class TestCase extends \Orchestra\Testbench\TestCase
     /**
      * @inheritdoc
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         \Mockery::close();
 
