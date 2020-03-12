@@ -16,6 +16,7 @@
     ],
     "require": {
         "php": ">=7.1",
+        "ext-json": "*",
         "firebase/php-jwt": "^5.0",
         "guzzlehttp/guzzle": "^6.3",
         "illuminate/support": "~5.5",
@@ -44,7 +45,8 @@
         },
         "laravel": {
             "aliases": {
-                "AuthService": "Slides\\Connector\\Auth\\Facades\\AuthService"
+                "AuthService": "Slides\\Connector\\Auth\\Facades\\AuthService",
+                "MandrillMail": "Slides\\Connector\\Auth\\Facades\\MandrillMail"
             }
         }
     },

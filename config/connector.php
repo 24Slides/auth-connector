@@ -15,7 +15,13 @@ return [
         'auth' => [
             'url' => env('SERVICE_AUTH_URL'),
             'public' => env('SERVICE_AUTH_PUBLIC'),
-            'secret' => env('SERVICE_AUTH_SECRET'),
+            'secret' => env('SERVICE_AUTH_SECRET')
+        ],
+        'clients' => [
+            'mandrill' => [
+                'secretKey' => env('SERVICE_MANDRILL_SECRET'),
+                'resolver' => \Slides\Connector\Auth\Clients\Mandrill\VariableResolver::class
+            ]
         ]
     ],
 
