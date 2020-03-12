@@ -51,11 +51,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertFalse($token);
     }
 
-    /**
-     * @expectedException \Slides\Connector\Auth\Exceptions\ValidationException
-     */
     public function testLoginValidationError()
     {
+        $this->expectException(\Slides\Connector\Auth\Exceptions\ValidationException::class);
+
         $service = $this->mockService([
             new Response(422, [], $this->stub(__DIR__ . '/responses/login-validation-error.json'))
         ]);
@@ -91,11 +90,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertFalse($token);
     }
 
-    /**
-     * @expectedException \Slides\Connector\Auth\Exceptions\ValidationException
-     */
     public function testUnsafeLoginValidationError()
     {
+        $this->expectException(\Slides\Connector\Auth\Exceptions\ValidationException::class);
+
         $service = $this->mockService([
             new Response(422, [], $this->stub(__DIR__ . '/responses/unsafe-login-validation-error.json'))
         ]);
@@ -118,11 +116,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertSame(json_decode($expected, true), $response);
     }
 
-    /**
-     * @expectedException \Slides\Connector\Auth\Exceptions\ValidationException
-     */
     public function testRegisterValidationError()
     {
+        $this->expectException(\Slides\Connector\Auth\Exceptions\ValidationException::class);
+
         $service = $this->mockService([
             new Response(422, [], $this->stub(__DIR__ . '/responses/register-validation-error.json'))
         ]);
@@ -244,21 +241,19 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         );
     }
 
-    /**
-     * @expectedException \ArgumentCountError
-     */
     public function testHandleWithInvalidParameters()
     {
+        $this->expectException(\ArgumentCountError::class);
+
         static::assertTrue(
             $this->mockService()->handle('testParams')
         );
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testHandleInvalid()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $this->mockService()->handle('unknown');
     }
 

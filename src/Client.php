@@ -84,7 +84,8 @@ class Client
                 'base_uri' => Str::finish($this->credential('url'), '/'),
                 'headers' => [
                     'X-Tenant-Key' => $publicKey,
-                    'X-Tenant-Sign' => $this->signature($publicKey, $secretKey)
+                    'X-Tenant-Sign' => $this->signature($publicKey, $secretKey),
+                    'User-Agent' => null
                 ],
                 'http_errors' => false
             ]);
