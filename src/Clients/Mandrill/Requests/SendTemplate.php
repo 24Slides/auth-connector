@@ -58,14 +58,14 @@ class SendTemplate extends AbstractRequest
         $this->body([
             'template_name' => $this->template,
             'template_content' => [],
-            'message' => [
-                    'preserve_recipients' => false,
-                    'track_opens' => true,
-                    'track_clicks' => true,
-                    'to' => $this->recipients,
-                    'merge_vars' => $this->variables,
-                    'merge_language' => 'handlebars'
-                ] + array_filter($optional)
+            'message' => array_merge([
+                'preserve_recipients' => false,
+                'track_opens' => true,
+                'track_clicks' => true,
+                'to' => $this->recipients,
+                'merge_vars' => $this->variables,
+                'merge_language' => 'handlebars'
+            ], array_filter($optional))
         ]);
     }
 }
