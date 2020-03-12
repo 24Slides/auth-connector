@@ -3,6 +3,7 @@
 namespace Slides\Connector\Auth\Sync;
 
 use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Arr;
 
 /**
  * Trait ExportsUsers
@@ -130,10 +131,12 @@ trait ExportsUsers
     /**
      * Retrieve a credential value
      *
+     * @param string $key
+     *
      * @return string
      */
     private function credential(string $key)
     {
-        return array_get($this->credentials(), $key);
+        return Arr::get($this->credentials(), $key);
     }
 }

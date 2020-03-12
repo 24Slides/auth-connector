@@ -3,6 +3,8 @@
 namespace Slides\Connector\Auth;
 
 use GuzzleHttp\Client as HttpClient;
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Psr\Http\Message\ResponseInterface;
 use Slides\Connector\Auth\Exceptions\ValidationException;
 use Slides\Connector\Auth\Concerns\WritesLogs;
@@ -79,7 +81,7 @@ class Client
 
             $this->client = new HttpClient([
                 'handler' => $handler,
-                'base_uri' => str_finish($this->credential('url'), '/'),
+                'base_uri' => Str::finish($this->credential('url'), '/'),
                 'headers' => [
                     'X-Tenant-Key' => $publicKey,
                     'X-Tenant-Sign' => $this->signature($publicKey, $secretKey)
@@ -316,7 +318,7 @@ class Client
         }
 
         return $withStatus
-            ? array_get($this->formatted, 'status') === 'success'
+            ? Arr::get($this->formatted, 'status') === 'success'
             : true;
     }
 
@@ -327,7 +329,7 @@ class Client
      */
     public function getToken()
     {
-        return array_get($this->formatted, 'token');
+        return Arr::get($this->formatted, 'token');
     }
 
     /**
@@ -383,7 +385,7 @@ class Client
            return $this->formatted;
         }
 
-        $message = array_get($this->formatted, 'message');
+        $message = Arr::get($this->formatted, 'message');
 
         switch ($this->response->getStatusCode()) {
             case \Illuminate\Http\Response::HTTP_UNPROCESSABLE_ENTITY: {
@@ -440,6 +442,6 @@ class Client
      */
     private function credential(string $key, $default = null)
     {
-        return array_get(config('connector.credentials.auth', []), $key, $default);
+        return Arr::get(config('connector.credentials.auth', []), $key, $default);
     }
 }

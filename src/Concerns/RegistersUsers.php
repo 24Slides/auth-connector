@@ -3,6 +3,7 @@
 namespace Slides\Connector\Auth\Concerns;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Slides\Connector\Auth\Facades\AuthService;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Foundation\Auth\RegistersUsers as BaseRegistersUsers;
@@ -48,7 +49,7 @@ trait RegistersUsers
     protected function create(array $data)
     {
         return AuthService::handle('create', [
-            'attributes' => array_only($data, ['name', $this->username(), 'password'])
+            'attributes' => Arr::only($data, ['name', $this->username(), 'password'])
         ]);
     }
 }

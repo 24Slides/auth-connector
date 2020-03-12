@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Auth\Guard as GuardContract;
 use Slides\Connector\Auth\Sync\User as RemoteUser;
@@ -190,7 +191,7 @@ class AuthService
             return false;
         }
 
-        return array_get($response, 'user.email');
+        return Arr::get($response, 'user.email');
     }
 
     /**
