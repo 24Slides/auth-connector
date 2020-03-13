@@ -4,6 +4,7 @@ namespace Slides\Connector\Auth;
 
 use Illuminate\Http\Request;
 use Illuminate\Auth\GuardHelpers;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Cookie;
 use Illuminate\Contracts\Auth\UserProvider;
 
@@ -90,7 +91,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
         $response = $this->client->request('login', compact('email', 'password', 'remember'));
 
         if(!$this->client->success(true)) {
-            $this->lastError = array_get($response, 'message');
+            $this->lastError = Arr::get($response, 'message');
             return false;
         }
 
@@ -219,7 +220,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
             return null;
         }
 
-        if(!$userId = array_get($data, 'userId')) {
+        if(!$userId = Arr::get($data, 'userId')) {
             return null;
         }
 

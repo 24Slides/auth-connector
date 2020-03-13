@@ -2,6 +2,8 @@
 
 namespace Slides\Connector\Auth\Tests\Feature;
 
+use Illuminate\Support\Arr;
+use Illuminate\Support\Str;
 use Slides\Connector\Auth\AuthService;
 use GuzzleHttp\Psr7\Response;
 
@@ -33,7 +35,7 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
 
         $token = $service->login('test@test.com', 'secret', false);
         
-        $expected = array_get(json_decode($response, true), 'token');
+        $expected = Arr::get(json_decode($response, true), 'token');
 
         static::assertSame($expected, $token);
     }
@@ -49,11 +51,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertFalse($token);
     }
 
-    /**
-     * @expectedException \Slides\Connector\Auth\Exceptions\ValidationException
-     */
     public function testLoginValidationError()
     {
+        $this->expectException(\Slides\Connector\Auth\Exceptions\ValidationException::class);
+
         $service = $this->mockService([
             new Response(422, [], $this->stub(__DIR__ . '/responses/login-validation-error.json'))
         ]);
@@ -73,7 +74,7 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
 
         $token = $service->unsafeLogin('test@test.com', false);
 
-        $expected = array_get(json_decode($response, true), 'token');
+        $expected = Arr::get(json_decode($response, true), 'token');
 
         static::assertSame($expected, $token);
     }
@@ -89,11 +90,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertFalse($token);
     }
 
-    /**
-     * @expectedException \Slides\Connector\Auth\Exceptions\ValidationException
-     */
     public function testUnsafeLoginValidationError()
     {
+        $this->expectException(\Slides\Connector\Auth\Exceptions\ValidationException::class);
+
         $service = $this->mockService([
             new Response(422, [], $this->stub(__DIR__ . '/responses/unsafe-login-validation-error.json'))
         ]);
@@ -116,11 +116,10 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertSame(json_decode($expected, true), $response);
     }
 
-    /**
-     * @expectedException \Slides\Connector\Auth\Exceptions\ValidationException
-     */
     public function testRegisterValidationError()
     {
+        $this->expectException(\Slides\Connector\Auth\Exceptions\ValidationException::class);
+
         $service = $this->mockService([
             new Response(422, [], $this->stub(__DIR__ . '/responses/register-validation-error.json'))
         ]);
@@ -160,7 +159,7 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
             new Response(200, [], $this->stub(__DIR__ . '/responses/validate-reset-success.json'))
         ]);
 
-        $response = $service->validatePasswordResetToken(str_random(), 'test@test.com');
+        $response = $service->validatePasswordResetToken(Str::random(), 'test@test.com');
 
         static::assertSame($response, 'test@test.com');
     }
@@ -171,7 +170,7 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
             new Response(200, [], $this->stub(__DIR__ . '/responses/validate-reset-error.json'))
         ]);
 
-        $response = $service->validatePasswordResetToken(str_random(), 'test@test.com');
+        $response = $service->validatePasswordResetToken(Str::random(), 'test@test.com');
 
         static::assertFalse($response, 'test@test.com');
     }
@@ -186,7 +185,7 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
             new Response(200, [], $expected = $this->stub(__DIR__ . '/responses/reset-success.json'))
         ]);
 
-        $response = $service->resetPassword(str_random(), 'test@test.com', 'secret', 'secret');
+        $response = $service->resetPassword(Str::random(), 'test@test.com', 'secret', 'secret');
 
         static::assertSame(json_decode($expected, true), $response);
     }
@@ -197,7 +196,7 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
             new Response(200, [], $this->stub(__DIR__ . '/responses/reset-error.json'))
         ]);
 
-        $response = $service->resetPassword(str_random(), 'test@test.com', 'secret', 'secret');
+        $response = $service->resetPassword(Str::random(), 'test@test.com', 'secret', 'secret');
 
         static::assertFalse($response);
     }
@@ -242,21 +241,19 @@ class AuthServiceTest extends \Slides\Connector\Auth\Tests\TestCase
         );
     }
 
-    /**
-     * @expectedException \ArgumentCountError
-     */
     public function testHandleWithInvalidParameters()
     {
+        $this->expectException(\ArgumentCountError::class);
+
         static::assertTrue(
             $this->mockService()->handle('testParams')
         );
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testHandleInvalid()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $this->mockService()->handle('unknown');
     }
 

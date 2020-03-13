@@ -3,6 +3,7 @@
 namespace Slides\Connector\Auth\Sync;
 
 use Carbon\Carbon;
+use Illuminate\Support\Arr;
 
 /**
  * Class User describes a remote user
@@ -223,18 +224,18 @@ final class User
      */
     public static function createFromResponse(array $response)
     {
-        $user = array_get($response, 'user');
+        $user = Arr::get($response, 'user');
 
         return new static(
-            array_get($user, 'id'),
-            array_get($user, 'name'),
-            array_get($user, 'email'),
-            array_get($user, 'password'),
-            array_get($user, 'updated_at'),
-            array_get($user, 'created_at'),
-            array_get($user, 'deleted_at'),
-            array_get($user, 'country'),
-            array_get($user, 'action')
+            Arr::get($user, 'id'),
+            Arr::get($user, 'name'),
+            Arr::get($user, 'email'),
+            Arr::get($user, 'password'),
+            Arr::get($user, 'updated_at'),
+            Arr::get($user, 'created_at'),
+            Arr::get($user, 'deleted_at'),
+            Arr::get($user, 'country'),
+            Arr::get($user, 'action')
         );
     }
 

@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth\Sync;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Slides\Connector\Auth\Sync\Syncable as LocalUser;
 use Slides\Connector\Auth\Sync\User as RemoteUser;
@@ -159,9 +160,9 @@ class Syncer
     {
         $foreigners = array_map(function (array $user) {
             return $this->createRemoteUserFromResponse($user);
-        }, array_get($response, 'difference'));
+        }, Arr::get($response, 'difference'));
 
-        $this->mergeRemoteStats($remoteStats = array_get($response, 'stats'));
+        $this->mergeRemoteStats($remoteStats = Arr::get($response, 'stats'));
 
         $this->outputMessage(
             'Remote affection:'
@@ -243,15 +244,15 @@ class Syncer
     public function createRemoteUserFromResponse(array $user)
     {
         return new RemoteUser(
-            array_get($user, 'id'),
-            array_get($user, 'name'),
-            array_get($user, 'email'),
-            array_get($user, 'password'),
-            array_get($user, 'updated_at'),
-            array_get($user, 'created_at'),
-            array_get($user, 'deleted_at'),
-            array_get($user, 'country'),
-            array_get($user, 'action')
+            Arr::get($user, 'id'),
+            Arr::get($user, 'name'),
+            Arr::get($user, 'email'),
+            Arr::get($user, 'password'),
+            Arr::get($user, 'updated_at'),
+            Arr::get($user, 'created_at'),
+            Arr::get($user, 'deleted_at'),
+            Arr::get($user, 'country'),
+            Arr::get($user, 'action')
         );
     }
 
@@ -386,7 +387,7 @@ class Syncer
      */
     protected function incrementStats(string $key)
     {
-        $value = array_get($this->localStats, $key, 0);
+        $value = Arr::get($this->localStats, $key, 0);
 
         $this->localStats[$key] = ++$value;
     }

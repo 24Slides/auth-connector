@@ -7,6 +7,7 @@ use GuzzleHttp\Middleware;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Psr7\Response;
+use Illuminate\Support\Arr;
 use InvalidArgumentException;
 use Psr\Http\Message\RequestInterface;
 use RuntimeException;
@@ -245,7 +246,7 @@ abstract class AbstractClient
      */
     public function credential(string $key, $default = null)
     {
-        return array_get($this->credentials, $key, $default);
+        return Arr::get($this->credentials, $key, $default);
     }
 
     /**

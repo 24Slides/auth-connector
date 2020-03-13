@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth\Webhooks;
 
+use Illuminate\Support\Arr;
 use Slides\Connector\Auth\Sync\Syncer;
 
 /**
@@ -40,7 +41,7 @@ class UserSyncWebhook extends Webhook
      */
     public function handle(array $payload)
     {
-        $user = array_get($payload, 'user');
+        $user = Arr::get($payload, 'user');
 
         $syncer = new Syncer(null, [Syncer::MODE_PASSWORDS]);
         $syncer->setForeigners(collect([
