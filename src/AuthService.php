@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth;
 
+use Illuminate\Encryption\Encrypter;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Auth\Guard as GuardContract;
@@ -493,5 +494,43 @@ class AuthService
     public function getClient(): Client
     {
         return $this->client;
+    }
+
+    /**
+     * Encrypt the given value.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function encrypt(string $value): string
+    {
+        return $this->encrypter()->encrypt($value);
+    }
+
+    /**
+     * Decrypt the given value.
+     *
+     * @param string $value
+     *
+     * @return string
+     */
+    public function decrypt(string $value): string
+    {
+        return $this->encrypter()->decrypt($value);
+    }
+
+    /**
+     * Retrieve encrypter instance.
+     *
+     * @return Encrypter
+     */
+    protected function encrypter(): Encrypter
+    {
+        if ($key = config('connector.auth.cryptKey')){
+            throw new \RuntimeException('The crypt key should be provided.');
+        }
+
+        return new Encrypter($key);
     }
 }
