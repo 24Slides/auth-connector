@@ -527,6 +527,10 @@ class AuthService
      */
     protected function encrypter(): Encrypter
     {
-        return new Encrypter(config('connector.auth.key'));
+        if ($key = config('connector.auth.key')){
+            throw new \RuntimeException('The crypt key should be provided.');
+        }
+
+        return new Encrypter($key);
     }
 }
