@@ -13,7 +13,7 @@ return [
 
     'credentials' => [
         'auth' => [
-            'cryptKey' => env('SERVICE_AUTH_CRYPT_TOKEN', '3NZ3ICTdumdR1I8sSRQsyzRbsQNyPFql'),
+            'cryptKey' => env('SERVICE_AUTH_CRYPT_TOKEN', 'W48eSUfsDX8YtzarrpMsWknNuA3FsvnU57FD+mNJsfw='),
             'url' => env('SERVICE_AUTH_URL'),
             'public' => env('SERVICE_AUTH_PUBLIC'),
             'secret' => env('SERVICE_AUTH_SECRET')

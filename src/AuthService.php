@@ -531,6 +531,6 @@ class AuthService
             throw new \RuntimeException('The crypt key should be provided.');
         }
 
-        return new Encrypter($key);
+        return new Encrypter(base64_decode($key), 'AES-256-CBC');
     }
 }
