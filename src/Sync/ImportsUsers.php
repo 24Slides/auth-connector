@@ -3,6 +3,7 @@
 namespace Slides\Connector\Auth\Sync;
 
 use Illuminate\Encryption\Encrypter;
+use Illuminate\Support\Arr;
 
 /**
  * Trait ImportsUsers
@@ -67,7 +68,7 @@ trait ImportsUsers
         $this->extractHeaders($payload);
 
         if($importModes) {
-            $this->modes = array_get($this->importHeaders, 'modes', []);
+            $this->modes = Arr::get($this->importHeaders, 'modes', []);
         }
 
         $encrypter = new Encrypter(

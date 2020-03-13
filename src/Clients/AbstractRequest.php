@@ -2,6 +2,8 @@
 
 namespace Slides\Connector\Auth\Clients;
 
+use Illuminate\Support\Arr;
+
 /**
  * Class AbstractRequest
  *
@@ -143,7 +145,7 @@ abstract class AbstractRequest
      */
     public function attribute(string $key, $default = null)
     {
-        return array_get($this->attributes, $key, $default);
+        return Arr::get($this->attributes, $key, $default);
     }
 
     /**

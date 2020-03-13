@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth\Sync;
 
+use Illuminate\Support\Str;
 use Slides\Connector\Auth\Sync\Syncable as LocalUser;
 use Slides\Connector\Auth\Sync\User as RemoteUser;
 use Illuminate\Support\Facades\Auth;
@@ -26,7 +27,7 @@ trait HandlesActions
      */
     protected function handleAction(RemoteUser $remote, string $action)
     {
-        $handler = 'action' . studly_case($action);
+        $handler = 'action' . Str::studly($action);
 
         if(!method_exists($this, $handler)) {
             throw new \Slides\Connector\Auth\Exceptions\SyncException("User action handler {$handler} cannot be found.");

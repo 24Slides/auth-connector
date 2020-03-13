@@ -2,8 +2,10 @@
 
 namespace Slides\Connector\Auth;
 
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Contracts\Auth\Guard as GuardContract;
+use Illuminate\Support\Str;
 use Slides\Connector\Auth\Sync\User as RemoteUser;
 
 /**
@@ -190,7 +192,7 @@ class AuthService
             return false;
         }
 
-        return array_get($response, 'user.email');
+        return Arr::get($response, 'user.email');
     }
 
     /**
@@ -344,7 +346,7 @@ class AuthService
      */
     public function handle(string $key, array $parameters = [], \Closure $fallback = null)
     {
-        $handler = camel_case(str_replace('.', ' ', $key));
+        $handler = Str::camel(str_replace('.', ' ', $key));
 
         if(!method_exists($this->handlersContainer, $handler)) {
             throw new \InvalidArgumentException("Handler `{$handler}` cannot be found");
@@ -368,7 +370,7 @@ class AuthService
      */
     public function handleFallback(string $key, array $parameters = [], \Closure $fallback = null)
     {
-        $key = 'fallback' . studly_case($key);
+        $key = 'fallback' . Str::studly($key);
         $parameters = array_merge(['guard' => $this->fallbackGuard], $parameters);
 
         return $this->handle($key, $parameters, $fallback);

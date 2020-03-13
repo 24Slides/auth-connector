@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth\Commands;
 
+use Illuminate\Support\Str;
 use Slides\Connector\Auth\Sync\Syncer;
 use Slides\Connector\Auth\Helpers\ConsoleHelper;
 use Slides\Connector\Auth\Concerns\PassesModes;
@@ -125,6 +126,6 @@ class SyncExport extends \Illuminate\Console\Command
 
         $datetime = (new \Carbon\Carbon())->format('Y_m_d_His');
 
-        return str_finish($path, '/') . 'sync_export_' . $datetime . '.gz';
+        return Str::finish($path, '/') . 'sync_export_' . $datetime . '.gz';
     }
 }

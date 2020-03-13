@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth\Webhooks;
 
+use Illuminate\Support\Arr;
 use Slides\Connector\Auth\Services\Assessment\AssessmentService;
 
 /**
@@ -46,7 +47,7 @@ class AssessUsersWebhook extends Webhook
     public function handle(array $payload)
     {
         return $this->assessmentService->differentiateUsers(
-            array_get($payload, 'keys', [])
+            Arr::get($payload, 'keys', [])
         );
     }
 }

@@ -2,6 +2,8 @@
 
 namespace Slides\Connector\Auth\Exceptions;
 
+use Illuminate\Support\Arr;
+
 /**
  * Class ValidationException
  *
@@ -51,7 +53,7 @@ class ValidationException extends \Illuminate\Validation\ValidationException
             }
 
             // Rename an attribute according the mapping, if not listed, use the same
-            $property = array_get(static::$attributeMap, $property, $property);
+            $property = Arr::get(static::$attributeMap, $property, $property);
 
             $messages[$property] = static::formatMessages($attributeMessages);
         }

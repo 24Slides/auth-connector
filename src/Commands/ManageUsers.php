@@ -3,6 +3,7 @@
 namespace Slides\Connector\Auth\Commands;
 
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use Slides\Connector\Auth\Helpers\ConsoleHelper;
 use Slides\Connector\Auth\AuthService;
 
@@ -88,7 +89,7 @@ class ManageUsers extends Command
             throw new \InvalidArgumentException("Unknown action `{$action}` passed");
         }
 
-        $actionHandler = 'handle' . studly_case($action);
+        $actionHandler = 'handle' . Str::studly($action);
 
         if(!method_exists($this, $actionHandler)) {
             throw new \InvalidArgumentException("Cannot find action handler `{$actionHandler}`");

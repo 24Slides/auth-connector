@@ -2,6 +2,7 @@
 
 namespace Slides\Connector\Auth\Webhooks;
 
+use Illuminate\Support\Arr;
 use Slides\Connector\Auth\Exceptions\WebhookException;
 use Slides\Connector\Auth\Exceptions\WebhookValidationException;
 use Slides\Connector\Auth\Concerns\WritesLogs;
@@ -83,7 +84,7 @@ class Dispatcher
      */
     private function get(string $key, $default = null)
     {
-        return array_get(static::webhooks(), $key, $default);
+        return Arr::get(static::webhooks(), $key, $default);
     }
 
     /**

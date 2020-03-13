@@ -17,13 +17,13 @@ class ClientTest extends \Slides\Connector\Auth\Tests\TestCase
         $client = new Client();
         $httpClient = $client->getClient();
 
-        static::assertArraySubset([
-            'headers' => [
-                'X-Tenant-Key' => 'dummy',
-                'X-Tenant-Sign' => '1a71f4efd61c5759ce2fde1ac0cdb830128270ee8355727ba698c2487c588a47'
-            ],
-            'http_errors' => false
-        ], $httpClient->getConfig());
+        static::assertSame($httpClient->getConfig('headers'), [
+            'X-Tenant-Key' => 'dummy',
+            'X-Tenant-Sign' => '1a71f4efd61c5759ce2fde1ac0cdb830128270ee8355727ba698c2487c588a47',
+            'User-Agent' => null
+        ]);
+
+        static::assertFalse($httpClient->getConfig('http_errors'));
     }
 
     public function testHasRequest()
@@ -34,11 +34,10 @@ class ClientTest extends \Slides\Connector\Auth\Tests\TestCase
         static::assertFalse($client->hasRequest('unknown'));
     }
 
-    /**
-     * @expectedException \InvalidArgumentException
-     */
     public function testInvalidRequest()
     {
+        $this->expectException(\InvalidArgumentException::class);
+
         $client = new Client();
         $client->request('unknown');
     }
