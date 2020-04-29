@@ -98,6 +98,18 @@ class Mailer
     }
 
     /**
+     * Set a message tags.
+     *
+     * @param array $tags
+     *
+     * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
+     */
+    public function tags(array $tags)
+    {
+        return $this->forward(__FUNCTION__, $tags);
+    }
+
+    /**
      * Begin the process of mailing a mail class instance.
      *
      * @param string $email
