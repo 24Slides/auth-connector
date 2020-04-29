@@ -170,6 +170,20 @@ class Email
     }
 
     /**
+     * Set message tags.
+     *
+     * @param array $tags
+     *
+     * @return static
+     */
+    public function tags(array $tags)
+    {
+        $this->attributes['tags'] = $tags;
+
+        return $this;
+    }
+
+    /**
      * Send the email.
      *
      * @param Collection $recipients

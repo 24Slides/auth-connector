@@ -527,10 +527,10 @@ class AuthService
      */
     protected function encrypter(): Encrypter
     {
-        if ($key = config('connector.auth.cryptKey')){
+        if (!$key = config('connector.credentials.auth.cryptKey')){
             throw new \RuntimeException('The crypt key should be provided.');
         }
 
-        return new Encrypter($key);
+        return new Encrypter(base64_decode($key), 'AES-256-CBC');
     }
 }
