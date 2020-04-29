@@ -30,7 +30,7 @@ class Send extends Command
                            {--f|from=         : The sender email address and name }
                            {--apiToken=       : The Mandrill API token }
                            {--s|subject=      : The message subject }
-                           {tags=             : The list of message tags }';
+                           {--tags=           : The list of message tags }';
 
     /**
      * The console command description.
