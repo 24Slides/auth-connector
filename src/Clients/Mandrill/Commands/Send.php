@@ -29,7 +29,8 @@ class Send extends Command
                            {--c|context=      : The list of context variables }
                            {--f|from=         : The sender email address and name }
                            {--apiToken=       : The Mandrill API token }
-                           {--s|subject=      : The message subject }';
+                           {--s|subject=      : The message subject }
+                           {tags=             : The list of message tags }';
 
     /**
      * The console command description.
@@ -59,6 +60,11 @@ class Send extends Command
      */
     protected $mailer;
 
+    /**
+     * Send constructor.
+     *
+     * @param Mailer $mailer
+     */
     public function __construct(Mailer $mailer)
     {
         $this->mailer = $mailer;
@@ -88,7 +94,8 @@ class Send extends Command
         $builder = $this->mailer->template($template)
             ->recipients($recipients)
             ->variables(ConsoleHelper::stringToArray($this->option('params')))
-            ->context(ConsoleHelper::stringToArray($this->option('context')));
+            ->context(ConsoleHelper::stringToArray($this->option('context')))
+            ->tags(ConsoleHelper::stringToArray($this->option('tags')));
 
         if ($from = $this->option('from')) {
             $builder->from(...array_pad(explode(':', $from), 2, null));

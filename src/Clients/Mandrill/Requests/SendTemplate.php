@@ -13,6 +13,7 @@ use Slides\Connector\Auth\Clients\AbstractRequest;
  * @property array $variables
  * @property array $from
  * @property string $subject
+ * @property array|null $tags
  *
  * @package Slides\Connector\Auth\Clients\Mandrill\Requests
  */
@@ -53,6 +54,7 @@ class SendTemplate extends AbstractRequest
             'from_email' => Arr::get($this->from, 'email'),
             'from_name' => Arr::get($this->from, 'name'),
             'subject' => $this->subject,
+            'tags' => $this->tags
         ];
 
         $this->body([
