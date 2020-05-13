@@ -78,6 +78,6 @@ trait PassesModes
      */
     protected function formatModes(array $modes): string
     {
-        return implode(array_keys($modes), ', ');
+        return implode(', ', array_keys($modes));
     }
 }
