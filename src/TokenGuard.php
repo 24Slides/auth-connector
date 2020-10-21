@@ -37,7 +37,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
      *
      * @var string
      */
-    protected $authCookie = 'authKey';
+    protected $authCookie;
 
     /**
      * The JWT token
@@ -73,6 +73,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
         $this->authService = $authService;
 
         $this->client = $client ?? new Client();
+        $this->authCookie = env('APP_AUTH_COOKIE', 'authKey');
     }
 
     /**
