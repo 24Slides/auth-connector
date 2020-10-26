@@ -197,7 +197,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
      */
     private function storeToken(string $token)
     {
-        $cookie = cookie($this->authCookie, $token);
+        $cookie = cookie()->forever($this->authCookie, $token, null, $this->domain());
 
         Cookie::queue($cookie);
     }
@@ -235,7 +235,7 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
      */
     public function logout()
     {
-        Cookie::queue(Cookie::forget($this->authCookie));
+        Cookie::queue(Cookie::forget($this->authCookie, null, $this->domain()));
     }
 
     /**
@@ -246,5 +246,21 @@ class TokenGuard implements \Illuminate\Contracts\Auth\Guard
     public function getLastError(): ?string
     {
         return $this->lastError;
+    }
+
+    /**
+     * Retrieve current domain
+     *
+     * @return string
+     */
+    protected function domain(): string
+    {
+        $parts = explode('.', $host = request()->getHost());
+
+        if (count($parts) < 2) {
+            return $host;
+        }
+
+        return $parts[count($parts) - 2] . '.' . last($parts);
     }
 }
