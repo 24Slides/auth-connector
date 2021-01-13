@@ -170,15 +170,14 @@ class ManageUsers extends Command
      */
     protected function retrieveUsers(array $conditions, bool $onlyTrashed = false)
     {
-        /** @var \Illuminate\Database\Query\Builder $query */
-        $query = \Illuminate\Support\Facades\Auth::getProvider()->createModel()
-            ->newQuery();
+        /** @var \Illuminate\Database\Eloquent\Builder $query */
+        $query = \Auth::getProvider()->createModel()->newQueryWithoutScopes();
 
         foreach ($conditions as $column => $value) {
             $query->whereIn($column, $value);
         }
 
-        if($onlyTrashed) {
+        if ($onlyTrashed) {
             $query->whereNotNull('deleted_at');
         }
 
