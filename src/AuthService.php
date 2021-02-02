@@ -138,11 +138,11 @@ class AuthService
      * @param string $name
      * @param string $email
      * @param string $password
-     * @param string $country
+     * @param string|null $country
      *
      * @return array
      */
-    public function register(int $userId, string $name, string $email, string $password, string $country)
+    public function register(int $userId, string $name, string $email, string $password, ?string $country)
     {
         if($this->disabled()) {
             return [];

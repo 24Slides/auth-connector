@@ -36,7 +36,7 @@ final class User
     /**
      * User's country code
      *
-     * @var string
+     * @var string|null
      */
     protected $country;
 
