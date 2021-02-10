@@ -40,7 +40,7 @@ interface Syncable
     /**
      * Retrieve user's country code in ISO 3166-1 alpha-2 representation
      *
-     * @return string
+     * @return string|null
      */
     public function retrieveCountry();
 

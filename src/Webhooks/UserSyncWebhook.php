@@ -24,7 +24,7 @@ class UserSyncWebhook extends Webhook
             'user.id' => 'required|int',
             'user.name' => 'string',
             'user.email' => 'required|email',
-            'user.country' => 'required|string|size:2',
+            'user.country' => 'nullable|string|size:2',
             'user.password' => 'string',
             'user.created_at' => 'required|string',
             'user.updated_at' => 'string',
