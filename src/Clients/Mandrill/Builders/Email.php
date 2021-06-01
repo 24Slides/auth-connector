@@ -4,8 +4,8 @@ namespace Slides\Connector\Auth\Clients\Mandrill\Builders;
 
 use Exception;
 use Illuminate\Support\Collection;
+use Slides\Connector\Auth\Clients\Mandrill\Contracts\VariableResolver;
 use Slides\Connector\Auth\Clients\Mandrill\Mailer;
-use Slides\Connector\Auth\Clients\Mandrill\VariableResolver;
 
 /**
  * Class Email
@@ -17,61 +17,53 @@ class Email
     /**
      * @var Mailer
      */
-    protected $mailer;
+    protected Mailer $mailer;
 
     /**
      * The variable resolver.
      *
-     * @var string
+     * @var VariableResolver|null
      */
-    protected $resolver;
-
-    /**
-     * @var VariableResolver
-     */
-    protected $resolverInstance;
+    protected ?VariableResolver $resolver = null;
 
     /**
      * The additional attributes that should be added to email.
      *
      * @var array
      */
-    protected $attributes = [];
+    protected array $attributes = [];
 
     /**
      * The list of context variables.
      *
      * @var array
      */
-    protected $context = [];
+    protected array $context = [];
 
     /**
      * @var string
      */
-    protected $template;
+    protected string $template;
 
     /**
      * @var array
      */
-    protected $variables;
+    protected array $variables = [];
 
     /**
      * @var Collection
      */
-    protected $recipients;
+    protected Collection $recipients;
 
     /**
      * Email constructor.
      *
      * @param Mailer $mailer
-     * @param string $resolver
      */
-    public function __construct(Mailer $mailer, string $resolver = null)
+    public function __construct(Mailer $mailer)
     {
         $this->mailer = $mailer;
         $this->recipients = new Collection();
-
-        $this->resolver = $resolver ?: config('connector.credentials.clients.mandrill.resolver');
     }
 
     /**
@@ -101,13 +93,13 @@ class Email
     /**
      * Set additional variables.
      *
-     * @param array $variables
+     * @param array|string $variables
      *
      * @return $this
      */
-    public function variables(array $variables)
+    public function variables($variables)
     {
-        $this->variables = $variables;
+        $this->variables = is_array($variables) ? $variables : func_get_args();
 
         return $this;
     }
@@ -130,7 +122,7 @@ class Email
      * Set the sender email address and name.
      *
      * @param string $email
-     * @param string $name
+     * @param string|null $name
      *
      * @return static
      */
@@ -144,13 +136,13 @@ class Email
     /**
      * Set the email recipients.
      *
-     * @param mixed $recipients
+     * @param array|string $recipients
      *
      * @return static
      */
     public function recipients($recipients)
     {
-        $this->recipients = collect($recipients);
+        $this->recipients->merge(is_array($recipients) ? $recipients : func_get_args());
 
         return $this;
     }
@@ -158,13 +150,13 @@ class Email
     /**
      * Set email context.
      *
-     * @param array $context
+     * @param mixed $context
      *
      * @return static
      */
-    public function context(array $context)
+    public function context($context)
     {
-        $this->context = $context;
+        $this->context = is_array($context) ? $context : func_get_args();
 
         return $this;
     }
@@ -172,13 +164,13 @@ class Email
     /**
      * Set message tags.
      *
-     * @param array $tags
+     * @param array|string $tags
      *
      * @return static
      */
-    public function tags(array $tags)
+    public function tags($tags)
     {
-        $this->attributes['tags'] = $tags;
+        $this->attributes['tags'] = is_array($tags) ? $tags : func_get_args();
 
         return $this;
     }
@@ -186,17 +178,13 @@ class Email
     /**
      * Send the email.
      *
-     * @param Collection $recipients
+     * @param Collection|null $recipients
      *
      * @return mixed
      */
     public function send(Collection $recipients = null)
     {
-        if (is_null($recipients)) {
-            $recipients = $this->recipients;
-        }
-
-        return $this->mailer->send($this->build($recipients));
+        return $this->mailer->send($this->build($recipients ?: $this->recipients));
     }
 
     /**
@@ -211,20 +199,6 @@ class Email
         foreach ($this->recipients->chunk($size) as $chunk) {
             yield $this->send($chunk);
         }
-    }
-
-    /**
-     * Chunk the recipients.
-     *
-     * @param int $size
-     *
-     * @return array
-     */
-    protected function chunk(int $size = 1000): array
-    {
-        $chunks = $this->recipients->chunk($size);
-
-        return $chunks->map([$this, 'build'])->toArray();
     }
 
     /**
@@ -252,12 +226,7 @@ class Email
      */
     protected function buildRecipients(Collection $recipients): array
     {
-        return $recipients->map(function (string $email) {
-            return [
-                'email' => $email,
-                'type' => 'to'
-            ];
-        })->toArray();
+        return $recipients->map(fn(string $email) => ['email' => $email, 'type' => 'to'])->all();
     }
 
     /**
@@ -269,12 +238,7 @@ class Email
      */
     protected function buildVariables(Collection $recipients): array
     {
-        return $recipients->map(function (string $email) {
-            return [
-                'rcpt' => $email,
-                'vars' => $this->userVariables($email)
-            ];
-        })->toArray();
+        return $recipients->map(fn(string $email) => ['rcpt' => $email, 'vars' => $this->userVariables($email)])->all();
     }
 
     /**
@@ -288,12 +252,10 @@ class Email
      */
     protected function userVariables(string $email): array
     {
-        if (!$this->resolverInstance) {
-            $this->resolverInstance = new $this->resolver($this->recipients, $this->context);
+        if (!$this->resolver) {
+            $this->resolver = app(VariableResolver::class, [$this->recipients, $this->context]);
         }
 
-        return array_map(function ($variable) use ($email) {
-            return $this->resolverInstance->resolve($variable, $email);
-        }, $this->variables);
+        return array_map(fn(string $variable) => $this->resolver->resolve($variable, $email), $this->variables);
     }
 }

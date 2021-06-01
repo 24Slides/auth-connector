@@ -5,23 +5,25 @@ namespace Slides\Connector\Auth\Clients\Mandrill;
 use Exception;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
+use Slides\Connector\Auth\Clients\Mandrill\Contracts\VariableResolver;
 
 /**
- * Class VariableResolver
+ * Class Resolver
  *
  * @package Slides\Connector\Auth\Clients\Mandrill
  */
-class VariableResolver
+abstract class Resolver implements VariableResolver
 {
     /**
      * @var Collection
      */
-    protected $emails;
+    protected Collection $emails;
 
     /**
      * @var array
      */
-    protected $context;
+    protected array $context;
 
     /**
      * VariableResolver constructor.
@@ -42,23 +44,19 @@ class VariableResolver
     /**
      * Resolver given variable.
      *
-     * @param string $name
+     * @param string $variable
      * @param string $email
      *
      * @return array
-     *
-     * @throws Exception
      */
-    final public function resolve(string $name, string $email): array
+    public function resolve(string $variable, string $email): array
     {
-        $method = 'get' . ucfirst($name) . 'Variable';
+        $method = 'get' . Str::studly($variable);
 
-        if (!method_exists($this, $method)) {
-            throw new Exception('Method ' . $method . ' should be defined.');
-        }
+        throw_unless(method_exists($this, $method), new Exception('Method ' . $method . ' should be defined.'));
 
         return [
-            'name' => $name,
+            'name' => $variable,
             'content' => call_user_func([$this, $method], $email)
         ];
     }

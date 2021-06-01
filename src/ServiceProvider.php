@@ -118,17 +118,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
      */
     protected function registerFacades()
     {
-        $this->app->singleton(Client::class, function($app) {
-            return new Client();
-        });
+        $this->app->singleton(Client::class);
 
         $this->app->singleton(AuthService::class);
 
         $this->app->alias(AuthService::class,'authService');
-
-        $this->app->singleton(Mailer::class);
-
-        $this->app->alias(Mailer::class, 'mandrill');
     }
 
     /**

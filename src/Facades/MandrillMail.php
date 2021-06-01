@@ -10,10 +10,12 @@ namespace Slides\Connector\Auth\Facades;
 class MandrillMail extends \Illuminate\Support\Facades\Facade
 {
     /**
-     * @inheritdoc
+     * Get the registered name of the component.
+     *
+     * @return string
      */
-    protected static function getFacadeAccessor()
+    protected static function getFacadeAccessor(): string
     {
-        return 'mandrill';
+        return \Slides\Connector\Auth\Clients\Mandrill\Mailer::class;
     }
 }

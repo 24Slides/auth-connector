@@ -16,12 +16,7 @@ class Mailer
     /**
      * @var Client
      */
-    protected $client;
-
-    /**
-     * @var string
-     */
-    protected $resolver;
+    protected Client $client;
 
     /**
      * Email constructor.
@@ -42,23 +37,7 @@ class Mailer
      */
     public function setToken(string $secret)
     {
-        return new static(new Client([], [
-            'secretKey' => $secret
-        ]));
-    }
-
-    /**
-     * Set variable resolver instance.
-     *
-     * @param string $resolver
-     *
-     * @return static
-     */
-    public function setResolver(string $resolver)
-    {
-        $this->resolver = $resolver;
-
-        return $this;
+        return new static(new Client([], ['secretKey' => $secret]));
     }
 
     /**
@@ -76,13 +55,13 @@ class Mailer
     /**
      * Begin the process of mailing a mail class instance.
      *
-     * @param array $variables
+     * @param array|string $variables
      *
      * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
      */
-    public function variables(array $variables)
+    public function variables(...$variables)
     {
-        return $this->forward(__FUNCTION__, $variables);
+        return $this->forward(__FUNCTION__, ...$variables);
     }
 
     /**
@@ -100,20 +79,20 @@ class Mailer
     /**
      * Set a message tags.
      *
-     * @param array $tags
+     * @param array|string $tags
      *
      * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
      */
-    public function tags(array $tags)
+    public function tags(...$tags)
     {
-        return $this->forward(__FUNCTION__, $tags);
+        return $this->forward(__FUNCTION__, ...$tags);
     }
 
     /**
      * Begin the process of mailing a mail class instance.
      *
      * @param string $email
-     * @param string $name
+     * @param string|null $name
      *
      * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
      */
@@ -125,13 +104,13 @@ class Mailer
     /**
      * Begin the process of mailing a mail class instance.
      *
-     * @param $recipients
+     * @param array|string $recipients
      *
      * @return \Slides\Connector\Auth\Clients\Mandrill\Builders\Email
      */
-    public function recipients($recipients)
+    public function recipients(...$recipients)
     {
-        return $this->forward(__FUNCTION__, $recipients);
+        return $this->forward(__FUNCTION__, ...$recipients);
     }
 
     /**
@@ -156,12 +135,10 @@ class Mailer
      */
     protected function forward(string $method, ...$arguments)
     {
-        $builder = new Email($this, $this->resolver);
-
-        if (!method_exists($builder, $method)) {
+        if (!method_exists($email = new Email($this), $method)) {
             throw new \BadMethodCallException('Method ' . $method . ' is not defined.');
         }
 
-        return call_user_func([$builder, $method], ...$arguments);
+        return call_user_func([$email, $method], ...$arguments);
     }
 }
