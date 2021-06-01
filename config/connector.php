@@ -20,8 +20,7 @@ return [
         ],
         'clients' => [
             'mandrill' => [
-                'secretKey' => env('SERVICE_MANDRILL_SECRET'),
-                'resolver' => \Slides\Connector\Auth\Clients\Mandrill\VariableResolver::class
+                'secretKey' => env('SERVICE_MANDRILL_SECRET')
             ]
         ]
     ],

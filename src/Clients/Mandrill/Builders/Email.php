@@ -142,7 +142,7 @@ class Email
      */
     public function recipients($recipients)
     {
-        $this->recipients->merge(is_array($recipients) ? $recipients : func_get_args());
+        $this->recipients = collect(is_array($recipients) ? $recipients : func_get_args());
 
         return $this;
     }
@@ -253,7 +253,7 @@ class Email
     protected function userVariables(string $email): array
     {
         if (!$this->resolver) {
-            $this->resolver = app(VariableResolver::class, [$this->recipients, $this->context]);
+            $this->resolver = app(VariableResolver::class, ['emails' => $this->recipients, 'context' => $this->context]);
         }
 
         return array_map(fn(string $variable) => $this->resolver->resolve($variable, $email), $this->variables);
