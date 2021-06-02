@@ -18,12 +18,12 @@ abstract class Resolver implements VariableResolver
     /**
      * @var Collection
      */
-    protected Collection $emails;
+    protected $emails;
 
     /**
      * @var array
      */
-    protected array $context;
+    protected $context;
 
     /**
      * VariableResolver constructor.

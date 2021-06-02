@@ -17,43 +17,43 @@ class Email
     /**
      * @var Mailer
      */
-    protected Mailer $mailer;
+    protected $mailer;
 
     /**
      * The variable resolver.
      *
      * @var VariableResolver|null
      */
-    protected ?VariableResolver $resolver = null;
+    protected $resolver;
 
     /**
      * The additional attributes that should be added to email.
      *
      * @var array
      */
-    protected array $attributes = [];
+    protected $attributes = [];
 
     /**
      * The list of context variables.
      *
      * @var array
      */
-    protected array $context = [];
+    protected $context = [];
 
     /**
      * @var string
      */
-    protected string $template;
+    protected $template;
 
     /**
      * @var array
      */
-    protected array $variables = [];
+    protected $variables = [];
 
     /**
      * @var Collection
      */
-    protected Collection $recipients;
+    protected $recipients;
 
     /**
      * Email constructor.
@@ -226,7 +226,9 @@ class Email
      */
     protected function buildRecipients(Collection $recipients): array
     {
-        return $recipients->map(fn(string $email) => ['email' => $email, 'type' => 'to'])->all();
+        return $recipients->map(function (string $email) {
+            return ['email' => $email, 'type' => 'to'];
+        })->all();
     }
 
     /**
@@ -238,7 +240,9 @@ class Email
      */
     protected function buildVariables(Collection $recipients): array
     {
-        return $recipients->map(fn(string $email) => ['rcpt' => $email, 'vars' => $this->userVariables($email)])->all();
+        return $recipients->map(function (string $email) {
+            return ['rcpt' => $email, 'vars' => $this->userVariables($email)];
+        })->all();
     }
 
     /**
@@ -256,6 +260,8 @@ class Email
             $this->resolver = app(VariableResolver::class, ['emails' => $this->recipients, 'context' => $this->context]);
         }
 
-        return array_map(fn(string $variable) => $this->resolver->resolve($variable, $email), $this->variables);
+        return array_map(function (string $variable) use ($email) {
+            return $this->resolver->resolve($variable, $email);
+        }, $this->variables);
     }
 }

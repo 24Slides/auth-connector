@@ -16,7 +16,7 @@ class Mailer
     /**
      * @var Client
      */
-    protected Client $client;
+    protected $client;
 
     /**
      * Email constructor.
